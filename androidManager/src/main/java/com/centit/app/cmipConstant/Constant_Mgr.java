@@ -78,10 +78,15 @@ public class Constant_Mgr
     // public static String mConPort = "8030";
     
     // 测试环境 104
-    public static String       mConIP                   = "lihao.tunnel.qydev.com";
-    
+//    public static String       mConIP                   = "lihao.tunnel.qydev.com";
+//
+//    public static String       mConPort                 = "";
+
+    public static String       mConIP                   = "huyang.tunnel.qydev.com";
+
     public static String       mConPort                 = "";
-    
+
+
     // 公网地址/
     
     // public static String mConIP = "app.centit.com";
