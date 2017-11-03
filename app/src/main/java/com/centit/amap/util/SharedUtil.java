@@ -5,15 +5,16 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 public class SharedUtil {
-
+	//记录是否是第一次运行
+	public static final String isFirstLaunch = "isFirstLaunch";
 	public static final String USERBEAN = "userBean";
 	public static final String funcode = "funcode";
 	public static final String lname = "lname";
 
-	//是否记录日志
-	public static final String recordLog = "recordLog";
+
 	//是否由用户停止
 	public static final String isRestartService = "isRestartService";
+
 
     public static final String devicetype="devicetype"; //"设备类型",
     public static final String devicecode =  "devicecode"; //"设备编号",
@@ -28,6 +29,9 @@ public class SharedUtil {
 
 
 	public static void putValue(Context context, String key, Object value) {
+		if (value==null){
+			return;
+		}
 		String type = value.getClass().getSimpleName();
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		SharedPreferences.Editor editor = sharedPreferences.edit();

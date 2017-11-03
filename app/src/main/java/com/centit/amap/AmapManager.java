@@ -85,17 +85,28 @@ public class AmapManager {
         markerOptions.anchor(0.5f, 1.0f).icon(BitmapDescriptorFactory.fromResource(R.drawable.start2_80));
     }
 
-
+    private void clear(){
+        //清空坐标集合
+        latLngs.clear();
+        //i = 0;
+        aMap.clear();
+    }
+    int count =0;
+    LatLng mlastlatLng;
     /**
      * 在mapservice成功定位后回调的业务逻辑
      */
     public void onAmapLocationSucces(Location location) {
         //真实路径点
         LatLng mTemplatLng = new LatLng(location.lat, location.lng);
+
+
+        //测试
+       // dbManager.add(location);
         //模拟路径点
         // LatLng mTemplatLng = new LatLng(31.972 + i, 118.755 + i);
         //i = i + 0.01;
-        latLngs.add(mTemplatLng);
+       // latLngs.add(mTemplatLng);
         //如果第一个点是起点，先画个起点
         if (isFirstPoint) {
             // markerOptions.icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.start2_32)));
@@ -109,22 +120,36 @@ public class AmapManager {
         //画完第一个起始点后，将marker点改为小圆点
         markerOptions.anchor(0.5f, 0.5f).icon(BitmapDescriptorFactory.fromResource(R.drawable.point_32));
         //添加锚点
-        markerOptions.position(mTemplatLng).title("位置：" + location.address).snippet("时间" + location.time);
+       markerOptions.position(mTemplatLng).title("位置：" + location.address).snippet("时间" + location.time);
         //画锚点
-        aMap.addMarker(markerOptions);
+     aMap.addMarker(markerOptions);
         //添加坐标
         polylineOptions.add(mTemplatLng);
         //链接坐标
         aMap.addPolyline(polylineOptions);
         //第一个参数是缩放比例，0是倾斜度，30显示比例
-        mUpdate = CameraUpdateFactory.newCameraPosition(new CameraPosition(mTemplatLng, 17, 0, 0));
+       mUpdate = CameraUpdateFactory.newCameraPosition(new CameraPosition(mTemplatLng, 17, 0, 0));
         aMap.moveCamera(mUpdate);//移动摄像头
+
+
+
+        count++;
+        if (count==2){
+            mlastlatLng=mTemplatLng;
+            polylineOptions = new PolylineOptions().width(10).color(lineColor);
+            polylineOptions.add(mlastlatLng);
+            count=0;
+        }
+
     }
 
     /**
      * 从数据库中查询点并绘制
      */
     public void drawLineFromDB() {
+
+
+
         List<Location> locationList = dbManager.query();
         LatLng latlng = null;
         for (int j = 0; j < locationList.size(); j++) {

@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.centit.amap.avtivity.SettingActivity"
+    android:background="#EFEFEF">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="设置"
+            android:textSize="20sp"
+            android:textColor="@android:color/white"/>
+
+    </android.support.v7.widget.Toolbar>
+
+    <LinearLayout
+        android:layout_below="@id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="20dp">
+        <include layout="@layout/line_layout"></include>
+
+
+        <RelativeLayout
+            android:id="@+id/userNameRl"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="vertical"
+            android:background="@android:color/white">
+            <TextView
+                style="@style/ItemTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:text="用户姓名"
+                android:layout_marginLeft="16dp"
+                />
+
+            <TextView
+                android:id="@+id/userNameTv"
+                style="@style/ItemTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="张三丰"
+                android:layout_marginRight="16dp"
+                android:layout_alignParentRight="true"
+
+                />
+
+        </RelativeLayout>
+        <View xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="0.1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            >
+        </View>
+        <RelativeLayout
+            android:id="@+id/userPhotoRl"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="vertical"
+            android:background="@android:color/white">
+            <TextView
+                style="@style/ItemTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:text="头像"
+                android:layout_marginLeft="16dp"
+                />
+            <ImageView
+                android:id="@+id/userPhotoImg"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="16dp"
+                android:src="@mipmap/ic_launcher"
+                />
+        </RelativeLayout>
+
+        <View xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="0.1dp"
+            android:background="@android:color/darker_gray"
+            >
+        </View>
+
+        <View xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="0.1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginTop="30dp"
+            >
+        </View>
+        <RelativeLayout
+            android:id="@+id/webAddressRl"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="vertical"
+
+            android:background="@android:color/white">
+            <TextView
+                style="@style/ItemTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:text="服务端地址"
+                android:layout_marginLeft="16dp"
+                />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_alignParentRight="true"
+                android:gravity="center"
+                android:layout_marginRight="16dp">
+
+                <TextView
+                    android:id="@+id/webAddressTv"
+                    style="@style/ItemTextStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="张三丰"
+                    />
+
+                <ImageView
+
+
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/go" />
+            </LinearLayout>
+
+
+
+        </RelativeLayout>
+        <View xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="0.1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            >
+        </View>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="vertical"
+
+            android:background="@android:color/white">
+            <TextView
+                style="@style/ItemTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:text="测试开启"
+                android:layout_marginLeft="16dp"
+                />
+            <CheckBox
+                android:id="@+id/testCheckBox"
+                android:layout_width="65dp"
+                android:layout_height="32dp"
+                android:layout_alignParentRight="true"
+                android:button="@null"
+                android:background="@drawable/checkbox_selector"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="16dp"
+                />
+
+        </RelativeLayout>
+        <View xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="0.1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            >
+        </View>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="vertical"
+
+            android:background="@android:color/white">
+            <TextView
+                style="@style/ItemTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:text="记录日志"
+                android:layout_marginLeft="16dp"
+                />
+            <CheckBox
+                android:id="@+id/logCheckBox"
+                android:layout_width="65dp"
+                android:layout_height="32dp"
+                android:layout_alignParentRight="true"
+                android:button="@null"
+                android:background="@drawable/checkbox_selector"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="16dp"
+                />
+
+        </RelativeLayout>
+        <View xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="0.1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            >
+        </View>
+        <RelativeLayout
+            android:id="@+id/upLoadLogRl"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="vertical"
+
+            android:background="@android:color/white">
+            <TextView
+                style="@style/ItemTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:text="上传日志"
+                android:layout_marginLeft="16dp"
+                />
+
+        </RelativeLayout>
+        <View xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="0.1dp"
+            android:background="@android:color/darker_gray"
+            >
+        </View>
+
+
+        <View xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="0.1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginTop="30dp"
+            >
+        </View>
+
+        <RelativeLayout
+            android:id="@+id/checkNewVersionRl"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="vertical"
+            android:background="@android:color/white">
+            <TextView
+                style="@style/ItemTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:text="检查新版本"
+                android:layout_marginLeft="16dp"
+                />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_alignParentRight="true"
+                android:gravity="center"
+                android:layout_marginRight="16dp">
+
+                <TextView
+                    android:id="@+id/versionTv"
+                    style="@style/ItemTextStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="1.0.1"
+                    />
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/go"
+                    />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <View xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="0.1dp"
+            android:background="@android:color/darker_gray"
+
+            >
+        </View>
+    </LinearLayout>
+
+
+
+
+
+
+
+
+</RelativeLayout>

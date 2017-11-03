@@ -17,10 +17,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amap.api.maps.MapView;
 import com.centit.GlobalState;
+import com.centit.amap.avtivity.SettingActivity;
+import com.centit.amap.constant.Constant;
 import com.centit.amap.database.Location;
 import com.centit.amap.net.ServiceImpl;
 import com.centit.amap.service.MapService;
@@ -46,11 +50,12 @@ public class MainActivity extends MIPBaseActivity {
 
     private Button startBtn;
     private Button stopBtn;
-    private Button drawBtn;
+    private Button downloadBtn;
     private Button testBtn;
-    private CheckBox recordLogCheckBox;
+
     private Button clearLogBtn;
-    private TextView speedTv;
+
+    private ImageView settingImg;
     private MapView mMapView = null;
 
     //是否绑定服务，用于避免解绑后再次解绑报异常
@@ -81,22 +86,22 @@ private String dingdingStr;
      *
      */
     private void initDate() {
-        //兼容老框架需要初始化的东西
-        GlobalState.getInstance().setmRequestURL(Constant_Mgr.getMIP_BASEURL());
-        //mWaitDialog=new WaitDialog(this);
+        //初始化APP配置
+        String url=Constant_Mgr.getMIP_BASEURL();
+        GlobalState.getInstance().setmRequestURL(url);
+
         //获取唯一标识IMEI
-
         TelephonyManager TelephonyMgr = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
-        String devicecode = TelephonyMgr.getDeviceId();
 
+        String devicecode=TelephonyMgr.getDeviceId();
         //  获取手机型号：
-        String   devicetype= android.os.Build.MODEL;
-        // 获取手机厂商：
-         String carrier= android.os.Build.MANUFACTURER;
+        String devicetype= android.os.Build.MODEL;
+        //获取手机厂商：
+        String carrier= android.os.Build.MANUFACTURER;
 
-        SharedUtil.putValue(this, SharedUtil.devicecode, devicecode);
+       SharedUtil.putValue(this, SharedUtil.devicecode, devicecode);
         SharedUtil.putValue(this, SharedUtil.devicetype, devicetype);
-       // Toast.makeText(this, "devicecode:"+devicecode+"devicetype:"+devicetype+"carrier:"+carrier, Toast.LENGTH_LONG).show();
+      //Toast.makeText(this, "devicecode:"+devicecode+"devicetype:"+devicetype+"carrier:"+carrier, Toast.LENGTH_LONG).show();
     }
 
 
@@ -122,8 +127,6 @@ private String dingdingStr;
              userphoto = uri.getQueryParameter("userphoto");
              deptname = uri.getQueryParameter("deptname");
 
-
-
             dingdingStr="uri全部内容:  "+uriStr+"\nhost:  "+host+"\nscheme:  "+scheme+"\ncorpid:  "+corpid+"\nuserid:  "+userid+"\nusername:  "+username+"\nuserphoto:  "+userphoto;
 //
 //           // Toast.makeText(this, "funcode:" + funcode + "lname:" + lname, Toast.LENGTH_SHORT).show();
@@ -134,13 +137,10 @@ private String dingdingStr;
             SharedUtil.putValue(this, SharedUtil.userid, userid);
             //SharedUtil.putValue(this, SharedUtil.deptname, deptname);
 
-
-
-
             LogUtil.d( "uri:" + uri.toString());
         }else if (uri==null&& TextUtils.isEmpty(corpid)){
             dingdingStr="uri为空！";
-            SimpleDialog.show(this, "请从钉钉打开本应用!", new SimpleDialog.OnPositiveClickListener() {
+            SimpleDialog.show(this, "请从钉钉打开本应用!", null,new SimpleDialog.OnPositiveClickListener() {
                 @Override
                 public void onPositiveClick() {
                     MainActivity.this.finish();
@@ -156,11 +156,12 @@ private String dingdingStr;
 
         startBtn = (Button) findViewById(R.id.startBtn);
         stopBtn = (Button) findViewById(R.id.stopBtn);
-        drawBtn = (Button) findViewById(R.id.drawBtn);
+        downloadBtn = (Button) findViewById(R.id.drawBtn);
         testBtn = (Button) findViewById(R.id.testBtn);
-        speedTv = (TextView) findViewById(R.id.speedTv);
-        recordLogCheckBox = (CheckBox) findViewById(R.id.recordLogCheckBox);
+
+
         clearLogBtn = (Button) findViewById(R.id.clearLogBtn);
+        settingImg= (ImageView) findViewById(R.id.settingImg);
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -168,6 +169,17 @@ private String dingdingStr;
                 amapManager.initAmapBeforeStart();
                 //开始定位
                 startAmapSercvice();
+                //测试
+//new Thread(new Runnable() {
+//    @Override
+//    public void run() {
+//        for (int i = 0; i < 1000; i++) {
+//            Location location=new Location("",32+((double)i)/1000,128+((double)i)/1000,"","",0);
+//            amapManager.onAmapLocationSucces(location);
+//        }
+//    }
+//}).start();
+
 
             }
         });
@@ -181,7 +193,7 @@ private String dingdingStr;
             }
         });
 
-        drawBtn.setOnClickListener(new View.OnClickListener() {
+        downloadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                //Intent intent=new Intent(MainActivity.this, GetConfParamsService.class);
@@ -193,18 +205,6 @@ private String dingdingStr;
                 dialog.show(getSupportFragmentManager(),DIALOG_DOWNLOAD);
             }
         });
-
-        recordLogCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    SharedUtil.putValue(MainActivity.this, SharedUtil.recordLog, true);
-                } else {
-                    SharedUtil.putValue(MainActivity.this, SharedUtil.recordLog, false);
-                }
-            }
-        });
-
 
         clearLogBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -223,7 +223,13 @@ private String dingdingStr;
                //downloadConfParams();
             }
         });
-
+        settingImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(MainActivity.this, SettingActivity.class);
+                MainActivity.this.startActivity(intent);
+            }
+        });
     }
 
 
@@ -319,7 +325,7 @@ private String dingdingStr;
             mapService.setOnLocationSuccessListener(new MapService.OnLocationSuccessListener() {
                 @Override
                 public void onSuccess(Location location) {
-                    speedTv.setText("速度：" + location.speed + "m/s");
+                    //speedTv.setText("速度：" + location.speed + "m/s");
                     amapManager.onAmapLocationSucces(location);
                 }
             });
@@ -370,10 +376,7 @@ private String dingdingStr;
 
         //由系统或用户停止服务后，不需要重启
         SharedUtil.putValue(MainActivity.this, SharedUtil.isRestartService, false);
-
-
         Intent stopIntent = new Intent(MainActivity.this, MapService.class);
-
         stopService(stopIntent);
         //解绑前判断一下
         if (isBind) {
@@ -381,6 +384,8 @@ private String dingdingStr;
             isBind = false;
         }
     }
+
+
 
 
     @Override
@@ -438,7 +443,7 @@ private String dingdingStr;
         if (error) {
             LogUtil.d( requestType+"");
             switch (requestType) {
-                case 1:
+                case ServiceImpl.TYPE_DOWNLOADCONFPARAMS:
 
                     if (objBody != null && objBody instanceof String) {
                         try {
@@ -472,7 +477,7 @@ private String dingdingStr;
                         }
                     }
                     break;
-                case 2:
+                case ServiceImpl.TYPE_GETNEWVERISION:
 
                     if (objBody != null && objBody instanceof String) {
                         try {
@@ -516,8 +521,26 @@ private String dingdingStr;
     protected void onResume() {
         LogUtil.d("");
         super.onResume();
+        boolean isTestMode=GlobalState.getInstance().isTestMode();
+        if (isTestMode){
+           startBtn.setVisibility(View.VISIBLE);
+           stopBtn.setVisibility(View.VISIBLE);
+            downloadBtn.setVisibility(View.VISIBLE);
+            testBtn.setVisibility(View.VISIBLE);
+            clearLogBtn.setVisibility(View.VISIBLE);
+        }else{
+            startBtn.setVisibility(View.GONE);
+            stopBtn.setVisibility(View.GONE);
+            downloadBtn.setVisibility(View.GONE);
+            testBtn.setVisibility(View.GONE);
+            clearLogBtn.setVisibility(View.GONE);
+        }
+
+
         //在activity执行onResume时执行mMapView.onResume ()，重新绘制加载地图
         mMapView.onResume();
+
+       // amapManager.drawLineFromDB();
 
     }
 
@@ -526,7 +549,7 @@ private String dingdingStr;
         LogUtil.d("");
         super.onPause();
         //在activity执行onPause时执行mMapView.onPause ()，暂停地图的绘制
-        mMapView.onPause();
+          mMapView.onPause();
     }
 
     @Override

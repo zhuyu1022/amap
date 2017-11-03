@@ -2537,6 +2537,8 @@ public class GlobalState extends Application
     private String                   mMethodName        = "";
     //是否记录日志
     private  boolean recordLog = false;
+    private  boolean isTestMode = false;
+    
     //是否由用户停止
     private  boolean isRestartService ;
     private  String devicetype=""; //"设备类型",
@@ -2572,14 +2574,14 @@ public class GlobalState extends Application
     }
 
 
-    /*public boolean isrecordLog()
+  public boolean isrecordLog()
+{
+    if (!recordLog)
     {
-        if (!recordLog)
-        {
-            recordLog = (Boolean)getVaule("recordLog", false);
-        }
-        return recordLog;
+        recordLog = (Boolean)getVaule("recordLog",Constant_Mgr.isRecordLog);
     }
+    return recordLog;
+}
 
 
     public void setRecordLog(boolean recordLog)
@@ -2588,7 +2590,23 @@ public class GlobalState extends Application
         setValue("recordLog", recordLog);
     }
 
-    public boolean isRestartService()
+    public boolean isTestMode()
+    {
+        if (!isTestMode)
+        {
+            isTestMode = (Boolean)getVaule("isTestMode",Constant_Mgr.isTestMode);
+        }
+        return isTestMode;
+    }
+
+
+    public void setTestMode(boolean isTestMode)
+    {
+        this.isTestMode = isTestMode;
+        setValue("isTestMode", isTestMode);
+    }
+
+     /* public boolean isRestartService()
     {
         if (!isRestartService)
         {

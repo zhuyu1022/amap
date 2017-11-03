@@ -32,6 +32,7 @@ import com.centit.amap.util.BatteryUtils;
 import com.centit.amap.util.LogUtil;
 import com.centit.amap.util.SharedUtil;
 import com.centit.amap.util.SystemUtils;
+import com.centit.amap.util.ToastUtil;
 import com.centit.core.baseView.baseUI.MIPBaseService;
 
 import org.json.JSONException;
@@ -129,8 +130,8 @@ public class MapService extends MIPBaseService {
                 .setContentTitle("巡防轨迹")
                 .setContentText("正在运行")
                 .setWhen(System.currentTimeMillis())
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(),R.mipmap.ic_launcher))
+                .setSmallIcon(R.mipmap.ic_logo)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(),R.mipmap.ic_logo))
                 .setContentIntent(pi)
                 .build();
         startForeground(1,notification);
@@ -284,8 +285,8 @@ public class MapService extends MIPBaseService {
                     String logStr = "\ntype:" + type + "\tlat:" + lat + "\tlng:" + lng + " \taddress:" + street + "\t time:" + time + " \tintervaTime:" + intervaTime + "\nlocationDistance:" + locationDistance + " \n电量：" + battery +  "\n 定位精度：" + mLocationOption.getLocationMode();
                     LogUtil.save(MapService.this,logStr);
                     LogUtil.d( logStr);
-                    Toast.makeText(MapService.this, logStr, Toast.LENGTH_SHORT).show();
-
+                   // Toast.makeText(MapService.this, logStr, Toast.LENGTH_SHORT).show();
+                    ToastUtil.show(MapService.this,logStr);
                 } else {
 
 
@@ -293,8 +294,8 @@ public class MapService extends MIPBaseService {
                     //定位失败时，可通过ErrCode（错误码）信息来确定失败的原因，errInfo是错误信息，详见错误码表。
                     LogUtil.e(logStr);
                     LogUtil.save(MapService.this,logStr);
-                    Toast.makeText(MapService.this, logStr, Toast.LENGTH_SHORT).show();
-
+                    //Toast.makeText(MapService.this, logStr, Toast.LENGTH_SHORT).show();
+                    ToastUtil.show(MapService.this,logStr);
 
                     //回调接口
                     if (mFailListener != null) {
@@ -354,7 +355,8 @@ public class MapService extends MIPBaseService {
                         LogUtil.d(logStr);
                         //记录日志
                         LogUtil.save(MapService.this,logStr);
-                        Toast.makeText(MapService.this, "无卫星时间"+noGpsTime, Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(MapService.this, "无卫星时间"+noGpsTime, Toast.LENGTH_SHORT).show();
+                        ToastUtil.show(MapService.this,"无卫星时间:"+noGpsTime);
                         //持续时间10秒以上
                         if (noGpsTime >= 10) {
 
@@ -695,7 +697,8 @@ public class MapService extends MIPBaseService {
         if (pendingIntent != null) {
             pendingIntent.cancel();
         }
-        Toast.makeText(this, "服务已停止", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "服务已停止", Toast.LENGTH_SHORT).show();
+        ToastUtil.show(this,"服务已停止");
         //如果不是用户销毁的，则重新启动服务
         boolean isRestartService = (boolean) SharedUtil.getValue(MapService.this, SharedUtil.isRestartService, false);
         if (isRestartService) {

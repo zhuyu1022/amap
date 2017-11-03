@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.centit.amap"
-    android:versionCode="1"
-    android:versionName="1.0.0">
+    >
 
     <!-- 用于进行网络定位 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -33,9 +32,9 @@
     <application
         android:name="com.centit.GlobalState"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_logo"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
@@ -44,42 +43,48 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-
-           <intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="detail"
-                    android:scheme="maptrack"/>
+                    android:scheme="maptrack" />
             </intent-filter>
 
-
-        <!-- <intent-filter>
+            <!--
+             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:host="detail"
                     android:scheme="sinaweibo"/>
-            </intent-filter>-->
+            </intent-filter>
+            -->
 
-          <!-- <intent-filter>
+
+            <!--
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:host="detail"
                     android:scheme="dinglive"/>
-            </intent-filter>-->
+            </intent-filter>
+            -->
 
         </activity>
-        <!-- 高德地图秘钥 公司电脑-->
-    <!--    <meta-data
+        <!-- 高德地图秘钥 公司电脑 -->
+        <!--
+            <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="30ec9e69a8edda07ab99477b3f1a7737" />-->
-        <!-- 高德地图秘钥   Y50笔记本-->
+            android:value="30ec9e69a8edda07ab99477b3f1a7737" />
+        -->
+        <!-- 高德地图秘钥   Y50笔记本 -->
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="e3dd2f0b8115f91862e929eca9a5d296" />
@@ -97,8 +102,8 @@
             android:name=".service.MapAlarmCheckService"
             android:enabled="true"
             android:exported="true" />
-        <receiver
 
+        <receiver
             android:name=".receiver.AlarmReceiver"
             android:enabled="true"
             android:exported="true">
@@ -106,6 +111,8 @@
                 <action android:name="LOCATION_CLOCK" />
             </intent-filter>
         </receiver>
+
+        <activity android:name=".avtivity.SettingActivity"></activity>
     </application>
 
 </manifest>

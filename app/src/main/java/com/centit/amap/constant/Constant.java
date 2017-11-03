@@ -10,4 +10,7 @@ public class Constant {
     public  static String MapService="com.centit.amap.service.MapService";
 
     public  static String MapAlarmCheckService="com.centit.amap.service.MapAlarmCheckService";
+
+
+
 }

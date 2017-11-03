@@ -107,7 +107,7 @@ public class ServiceImpl {
      */
     public static NetTask getNewVersion(NetTask task, Handler handler, int requestType, String corpid, String userid,String devicetype )
     {
-        GlobalState.getInstance().setmMethodName("/downloadConfParams");
+        GlobalState.getInstance().setmMethodName("/getNewVersion");
 
 
         JSONObject requestObj = new JSONObject();

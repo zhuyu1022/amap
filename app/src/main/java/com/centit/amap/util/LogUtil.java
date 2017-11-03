@@ -3,6 +3,9 @@ package com.centit.amap.util;
 import android.content.Context;
 import android.util.Log;
 
+import com.centit.GlobalState;
+import com.centit.amap.constant.Constant;
+
 import java.io.File;
 import java.io.FileOutputStream;
 
@@ -11,14 +14,14 @@ import java.io.FileOutputStream;
  */
 
 public class LogUtil {
-    //是否打印日志
-    public static final  boolean  writeLog=true;
+
 
     public static final String logFileName="LocatonLog.txt";
 
     private final static int   num_3=3;
     public static void  d(String msg){
-        if (writeLog){
+        boolean isRecordLog=GlobalState.getInstance().isrecordLog();
+        if (isRecordLog){
             String fullClassName = Thread.currentThread().getStackTrace()[num_3].getClassName();
             // 获取打印日志所在的类名
             String className = fullClassName.substring(fullClassName.lastIndexOf(".") + 1);
@@ -33,7 +36,8 @@ public class LogUtil {
     }
 
     public static void  v(String msg){
-        if (writeLog){
+        boolean isRecordLog=GlobalState.getInstance().isrecordLog();
+        if (isRecordLog){
             String fullClassName = Thread.currentThread().getStackTrace()[num_3].getClassName();
             // 获取打印日志所在的类名
             String className = fullClassName.substring(fullClassName.lastIndexOf(".") + 1);
@@ -47,7 +51,8 @@ public class LogUtil {
         }
     }
     public static void  i(String msg){
-        if (writeLog){
+        boolean isRecordLog=GlobalState.getInstance().isrecordLog();
+        if (isRecordLog){
             String fullClassName = Thread.currentThread().getStackTrace()[num_3].getClassName();
             // 获取打印日志所在的类名
             String className = fullClassName.substring(fullClassName.lastIndexOf(".") + 1);
@@ -62,7 +67,8 @@ public class LogUtil {
     }
 
     public static void  w(String msg){
-        if (writeLog){
+        boolean isRecordLog=GlobalState.getInstance().isrecordLog();
+        if (isRecordLog){
             String fullClassName = Thread.currentThread().getStackTrace()[num_3].getClassName();
             // 获取打印日志所在的类名
             String className = fullClassName.substring(fullClassName.lastIndexOf(".") + 1);
@@ -76,7 +82,8 @@ public class LogUtil {
         }
     }
     public static void  e(String msg){
-        if (writeLog){
+        boolean isRecordLog=GlobalState.getInstance().isrecordLog();
+        if (isRecordLog){
             String fullClassName = Thread.currentThread().getStackTrace()[num_3].getClassName();
             // 获取打印日志所在的类名
             String className = fullClassName.substring(fullClassName.lastIndexOf(".") + 1);
@@ -99,7 +106,8 @@ public class LogUtil {
 
     //写数据到SD中的文件
     public static void save(Context context, String write_str) {
-        if (writeLog){
+        boolean isRecordLog=GlobalState.getInstance().isrecordLog();
+        if (isRecordLog){
             try {
                 File file = new File(context.getExternalCacheDir(), logFileName);
                 FileOutputStream fout = new FileOutputStream(file, true);
@@ -110,6 +118,5 @@ public class LogUtil {
                 e.printStackTrace();
             }
         }
-
     }
 }

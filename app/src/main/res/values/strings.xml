@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">Amap</string>
+    <string name="app_name">寻访轨迹 </string>
+    <string name="title_activity_settings">Settings</string>
+
+
+
 </resources>

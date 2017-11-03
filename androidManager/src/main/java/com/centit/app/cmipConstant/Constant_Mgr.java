@@ -28,78 +28,33 @@ public class Constant_Mgr
     public static final String AppType                  = "zhyy";
     
     // ===============URL 定义==============================
-    /**
-     * 使用URL的默认地址
-     */
-    // public static String mConIP = "192.168.137.9";
-    
-    // public static String mConIP = "192.168.137.205";
-    
-    // public static String mConIP = "222.190.119.86";
-    
-    // public static String mConIP = "app.centit.com";
-    
-    // public static String mConIP = "192.168.135.50";
-    
-    //
-    // public static String mConPort = "8080";
-    
-    // public static String mConPort = "8666";
-    
-    // 192.168.135.50：8080
-    
-    // 测试环境 海尔
-    // public static String mConIP = "192.168.131.104";
-    //
-    // public static String mConPort = "8080";
-    
-    // 测试环境 产品
-    // public static String mConIP = "192.168.131.102";
-    //
-    // public static String mConPort = "8080";
-    
-    // 测试环境 李浩
-    // public static String mConIP = "192.168.135.29";
-    //
-    // public static String mConPort = "8888";
-    
-    // 测试环境 贾鹏
-    // public static String mConIP = "192.168.135.50";
-    //
-    // public static String mConPort = "8080";
-    
-    // public static String mConIP = "demo.centit.com";
-    //
-    // public static String mConPort = "";
-    
-    // 本机环境 luoxing 192.168.135.57:8030
-    // public static String mConIP = "192.168.135.57";
-    
-    // public static String mConPort = "8030";
-    
+
+
     // 测试环境 104
-//    public static String       mConIP                   = "lihao.tunnel.qydev.com";
-//
-//    public static String       mConPort                 = "";
+   public static String       mConIP                   = "lihao.tunnel.qydev.com";
 
-    public static String       mConIP                   = "huyang.tunnel.qydev.com";
+   public static String       mConPort                 = "";
 
-    public static String       mConPort                 = "";
+    //public static String       mConIP                   = "huyang.tunnel.qydev.com";
+
+  //  public static String       mConPort                 = "";
 
 
-    // 公网地址/
-    
-    // public static String mConIP = "app.centit.com";
-    //
-    // public static String mConPort = "443";
-    
-    //
-    //
-    //
-    // 正式环境
-    // public static String mConIP = "vip.mobile.haier.net";
-    //
-    // public static String mConPort = "8080";
+ /***********************************巡防轨迹中的变量********************************************/
+   //是否打印日志
+     public static   boolean  isRecordLog=true;
+
+    //是否为测试模式
+     public static   boolean  isTestMode=true;
+
+ /*********************************************************************************************/
+
+
+
+
+
+
+
     
     /**
      * 拼接的url
@@ -114,7 +69,12 @@ public class Constant_Mgr
                                                                                            
     // 通过前置机下载文件时拼接的字段
     public static final String MIP_DOWNLOADFILE_Serclet = "/cmipserv/fileDownload";       // cmipserv
-                                                                                           
+
+
+    /**
+     * 只包含基础url
+     * @return
+     */
     public static String getMIP_BASEURL()
     {
         String mIPAddr = GlobalState.getInstance().getmIPAddr();
@@ -139,6 +99,7 @@ public class Constant_Mgr
 
     /**
      * 请求的url
+     * 用于实际的请求url 包含方法名
      * 
      * @return
      */

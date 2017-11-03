@@ -8,8 +8,9 @@ android {
         minSdkVersion 16
         targetSdkVersion 21
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
@@ -24,13 +25,15 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    //compile 'com.amap.api:location:latest.integration'
+    //    compile project(':androidManager')
+    compile project(path: ':androidManager')
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support:support-v4:26.0.0-alpha1'
-    //compile 'com.amap.api:location:latest.integration'
     compile 'com.amap.api:3dmap:latest.integration'
-    testCompile 'junit:junit:4.12'
-    //    compile project(':androidManager')
     compile 'com.google.code.gson:gson:2.7'
-    compile project(path: ':androidManager')
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
+    compile 'com.android.support:support-vector-drawable:26.+'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    testCompile 'junit:junit:4.12'
 }
