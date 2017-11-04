@@ -66,6 +66,10 @@ public class Constant_Mgr
      * 拼接的url
      */
     public static final String MIP_BAES_URL_BASEServlet = MIP_BASE_SERVERNAME + "/service/docking"; // server
+   /**
+    * 拼接的url
+    */
+   //public static final String MIP_BAES_URL_BASEServlet = MIP_BASE_SERVERNAME + "/service/task"; // server
                                                                                            
     // 通过前置机下载文件时拼接的字段
     public static final String MIP_DOWNLOADFILE_Serclet = "/cmipserv/fileDownload";       // cmipserv

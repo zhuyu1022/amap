@@ -113,6 +113,7 @@
         </receiver>
 
         <activity android:name=".avtivity.SettingActivity"></activity>
+
     </application>
 
 </manifest>

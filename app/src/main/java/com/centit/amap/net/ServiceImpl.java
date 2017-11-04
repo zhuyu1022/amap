@@ -14,22 +14,19 @@ import org.json.JSONObject;
  */
 
 public class ServiceImpl {
-    public static final int TYPE_DOWNLOADCONFPARAMS=1;
-    public static final int TYPE_REPORTUSERNEWPOSITION=2;
-    public static final int  TYPE_GETNEWVERISION=3;
-    public static NetTask downloadConfParams(NetTask task, Handler handler, int requestType, String corpid, String userid)
-    {
+    public static final int TYPE_DOWNLOADCONFPARAMS = 1;
+    public static final int TYPE_REPORTUSERNEWPOSITION = 2;
+    public static final int TYPE_GETNEWVERISION = 3;
+
+    public static NetTask downloadConfParams(NetTask task, Handler handler, int requestType, String corpid, String userid) {
         GlobalState.getInstance().setmMethodName("/downloadConfParams");
 
 
         JSONObject requestObj = new JSONObject();
-        try
-        {
+        try {
             requestObj.put("corpid", corpid);
             requestObj.put("userid", userid);
-        }
-        catch (JSONException e)
-        {
+        } catch (JSONException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -40,6 +37,7 @@ public class ServiceImpl {
 
     /**
      * 人员位置实时上报
+     *
      * @param task
      * @param handler
      * @param requestType
@@ -59,17 +57,15 @@ public class ServiceImpl {
      * @return
      */
     public static NetTask reportUserNewPosition(NetTask task, Handler handler, int requestType,
-                                                String corpid,     String userid,    String username,  String userphoto,
-                                                String daptid,     String daptname,  String lat,       String lng,
-                                                String devicetype ,String devicecode,String appservion,String gps_flag,
-                                                String acquisitiontime)
-    {
+                                                String corpid, String userid, String username, String userphoto,
+                                                String daptid, String daptname, String lat, String lng,
+                                                String devicetype, String devicecode, String appservion, String gps_flag,
+                                                String acquisitiontime) {
         GlobalState.getInstance().setmMethodName("/reportUserNewPosition");
 
 
         JSONObject requestObj = new JSONObject();
-        try
-        {
+        try {
             requestObj.put("corpid", corpid);
             requestObj.put("userid", userid);
             requestObj.put("username", username);
@@ -84,9 +80,7 @@ public class ServiceImpl {
             requestObj.put("gps_flag", gps_flag);
             requestObj.put("acquisitiontime", acquisitiontime);
 
-        }
-        catch (JSONException e)
-        {
+        } catch (JSONException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -97,6 +91,7 @@ public class ServiceImpl {
 
     /**
      * 获取新版本
+     *
      * @param task
      * @param handler
      * @param requestType
@@ -105,20 +100,16 @@ public class ServiceImpl {
      * @param devicetype
      * @return
      */
-    public static NetTask getNewVersion(NetTask task, Handler handler, int requestType, String corpid, String userid,String devicetype )
-    {
+    public static NetTask getNewVersion(NetTask task, Handler handler, int requestType, String corpid, String userid, String devicetype) {
         GlobalState.getInstance().setmMethodName("/getNewVersion");
 
 
         JSONObject requestObj = new JSONObject();
-        try
-        {
+        try {
             requestObj.put("corpid", corpid);
             requestObj.put("userid", userid);
             requestObj.put("devicetype", devicetype);
-        }
-        catch (JSONException e)
-        {
+        } catch (JSONException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -140,6 +131,32 @@ public class ServiceImpl {
         "gps_flag": "是否开启GPS：0开启；1未开启",
         "acquisitiontime": "采集时间（移动端采集时间）yyyyMMddHHmmss"*/
 
+    public static NetTask acceptMessage(NetTask task, Handler handler, int requestType)
 
+
+    {
+
+            String msgBody="{\n" +
+                    "            \"messageid\": \"消息id\",\n" +
+                    "                \"content\": \"消息内容\",\n" +
+                    "                \"lng\": \"经度\",\n" +
+                    "                \"lat\": \"纬度\",\n" +
+                    "                \"useridList\": [{\n" +
+                    "            \"userid\": \"钉钉人员id\",\n" +
+                    "                    \"username\": \"钉钉人员名称\"\n" +
+                    "        }]\n" +
+                    "        }";
+        //设置方法名
+        GlobalState.getInstance().setmMethodName("/acceptMessage");
+        JSONObject requestObj = null;
+        try {
+            requestObj = new JSONObject(msgBody);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            //如果转换json遇到异常泽不进行上传
+            //return null;
+        }
+        return NetRequestController.sendStrBaseServletNew(task, handler, requestType, requestObj);
+    }
 
 }

@@ -218,9 +218,10 @@ private String dingdingStr;
             @Override
             public void onClick(View v) {
                 //test1: 钉钉跳转参数测试
-                SimpleDialog.show(MainActivity.this,dingdingStr);
+               SimpleDialog.show(MainActivity.this,dingdingStr);
                 //test2： 下发配置参数接口
                //downloadConfParams();
+                //ServiceImpl.acceptMessage(null,mHandler,ServiceImpl.TYPE_DOWNLOADCONFPARAMS);
             }
         });
         settingImg.setOnClickListener(new View.OnClickListener() {
