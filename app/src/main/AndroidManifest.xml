@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.centit.amap"
-    >
+    package="com.centit.amap">
 
     <!-- 用于进行网络定位 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -34,17 +33,18 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_logo"
         android:label="@string/app_name"
-
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".MainActivity"
             android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-<!--            <intent-filter>
+            <!--
+                <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
@@ -52,17 +52,19 @@
                 <data
                     android:host="detail"
                     android:scheme="maptrack" />
-            </intent-filter>-->
+            </intent-filter>
+            -->
 
-             <intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="detail"
-                    android:scheme="sinaweibo"/>
+                    android:scheme="sinaweibo" />
             </intent-filter>
-
 
             <!--
             <intent-filter>
@@ -110,8 +112,12 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".avtivity.SettingActivity"></activity>
+        <activity android:name=".avtivity.SettingActivity" />
 
+        <service
+            android:name=".service.UpLoadPositionService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

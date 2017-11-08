@@ -96,6 +96,9 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void initView() {
+
+
+
         toolbar= (Toolbar) findViewById(R.id.toolbar);
 
         userNameTv= (TextView) findViewById(R.id.userNameTv);
@@ -129,6 +132,31 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         clearRl= (RelativeLayout) findViewById(R.id.clearRl);
 
         clearBtn= (Button) findViewById(R.id.clearBtn);
+
+
+
+        //去掉测试按钮布局
+        boolean isTestMode=GlobalState.getInstance().isTestMode();
+        if (isTestMode) {
+            testRl.setVisibility(View.VISIBLE);
+        }else{
+            testRl.setVisibility(View.GONE);
+        }
+
+boolean isRealEnvironment=Constant_Mgr.isRealEnvironment;
+        if (isRealEnvironment){
+            upLoadLogRl.setVisibility(View.GONE);
+            webAddressRl.setVisibility(View.GONE);
+        }else{
+            upLoadLogRl.setVisibility(View.VISIBLE);
+            webAddressRl.setVisibility(View.VISIBLE);
+        }
+
+
+
+
+
+
         String userName= (String) SharedUtil.getValue(this,SharedUtil.username,"");
         userNameTv.setText(userName);
         String url= GlobalState.getInstance().getmIPAddr();
@@ -143,7 +171,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         versionTv.setText(version);
 
 
-        boolean isTestMode= GlobalState.getInstance().isTestMode();
+
         if (isTestMode){
             testCheckBox.setChecked(true);
         }else{
@@ -355,13 +383,21 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                     if (retCode != null && retCode.equals("0")) {
 //                        "assetid": "文件id"，
 //                        "filename":"文件名称"
-
-                        LogUtil.d("上传成功！");
-                        Toast.makeText(SettingActivity.this, "日志上传成功！", Toast.LENGTH_SHORT).show();
                         //清除sd卡中的日志
                         if (newfile.exists()){
-                            delete(newfile.getPath());
+
+                            newfile.delete();
                         }
+                        LogUtil.d("上传成功！");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(SettingActivity.this, "日志上传成功！", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+
+
 
                         return;
                     }

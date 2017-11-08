@@ -145,8 +145,8 @@ private String dingdingStr;
         String userid = null;
         String username =  null;
         String userphoto =  null;
-        String deptname =  null;
-
+        String departmentid =  null;
+        String  departmentname =null;
 //临时添加
 //         corpid = "ding2ace95aa3863334d35c2f4657eb6378f";
 //        userid = "manager6483";
@@ -165,9 +165,8 @@ private String dingdingStr;
             corpid = uri.getQueryParameter("corpid");
              userid = uri.getQueryParameter("userid");
              username = uri.getQueryParameter("username");
-             //userphoto = uri.getQueryParameter("userphoto");
-            // deptname = uri.getQueryParameter("deptname");
-
+            departmentid = uri.getQueryParameter("departmentid");
+            departmentname= uri.getQueryParameter("departmentname");
             dingdingStr="uri全部内容:  "+uriStr+"\nhost:  "+host+"\nscheme:  "+scheme+"\ncorpid:  "+corpid+"\nuserid:  "+userid+"\nusername:  "+username+"\nuserphoto:  "+userphoto;
 //
 //           // Toast.makeText(this, "funcode:" + funcode + "lname:" + lname, Toast.LENGTH_SHORT).show();
@@ -175,8 +174,8 @@ private String dingdingStr;
             SharedUtil.putValue(this, SharedUtil.corpid, corpid);
             SharedUtil.putValue(this, SharedUtil.userid, userid);
             SharedUtil.putValue(this, SharedUtil.username, username);
-            //SharedUtil.putValue(this, SharedUtil.userid, userid);
-            //SharedUtil.putValue(this, SharedUtil.deptname, deptname);
+            SharedUtil.putValue(this, SharedUtil.departmentid, departmentid);
+            SharedUtil.putValue(this, SharedUtil.departmentname, departmentname);
 
             LogUtil.d( "uri:" + uri.toString());
         }else if (uri==null){
@@ -215,16 +214,7 @@ private String dingdingStr;
                 amapManager.initAmapBeforeStart();
                 //开始定位
                 startAmapSercvice();
-                //测试
-//new Thread(new Runnable() {
-//    @Override
-//    public void run() {
-//        for (int i = 0; i < 1000; i++) {
-//            Location location=new Location("",32+((double)i)/1000,128+((double)i)/1000,"","",0);
-//            amapManager.onAmapLocationSucces(location);
-//        }
-//    }
-//}).start();
+
 
 
             }
@@ -353,28 +343,32 @@ private String dingdingStr;
         //在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，创建地图
         mMapView.onCreate(savedInstanceState);
         amapManager = new AmapManager(this, mMapView);
-        if (aMap == null) {
-            aMap = mMapView.getMap();
-        }
-        //初始化定位
-        mLocationClient = new AMapLocationClient(this);
-        //初始化AMapLocationClientOption对象
-        mLocationOption = new AMapLocationClientOption();
-        //设置定位模式为AMapLocationMode.Hight_Accuracy，高精度模式。高精度定位模式：会同时使用网络定位和GPS定位，优先返回最高精度的定位结果，以及对应的地址描述信息。
-        mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
-        //获取一次定位结果：
-        //该方法默认为false。
-        mLocationOption.setOnceLocation(true);
-        //获取最近3s内精度最高的一次定位结果：
-        //设置setOnceLocationLatest(boolean b)接口为true，启动定位时SDK会返回最近3s内精度最高的一次定位结果。如果设置其为true，setOnceLocation(boolean b)接口也会被设置为true，反之不会，默认为false。
-        //mLocationOption.setOnceLocationLatest(true);
-        //单位是毫秒，默认30000毫秒，建议超时时间不要低于8000毫秒。
-        mLocationOption.setHttpTimeOut(10000);
-        //给定位客户端对象设置定位参数
-        mLocationClient.setLocationOption(mLocationOption);
-        //设置定位回调监听
-        mLocationClient.setLocationListener(mLocationListener);
-        mLocationClient.startLocation();
+//        if (aMap == null) {
+//            aMap = mMapView.getMap();
+//        }
+//        //初始化定位
+//        mLocationClient = new AMapLocationClient(this);
+//        //初始化AMapLocationClientOption对象
+//        mLocationOption = new AMapLocationClientOption();
+//        //设置定位模式为AMapLocationMode.Hight_Accuracy，高精度模式。高精度定位模式：会同时使用网络定位和GPS定位，优先返回最高精度的定位结果，以及对应的地址描述信息。
+//        mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+//        //获取一次定位结果：
+//        //该方法默认为false。
+//        mLocationOption.setOnceLocation(true);
+//        //获取最近3s内精度最高的一次定位结果：
+//        //设置setOnceLocationLatest(boolean b)接口为true，启动定位时SDK会返回最近3s内精度最高的一次定位结果。如果设置其为true，setOnceLocation(boolean b)接口也会被设置为true，反之不会，默认为false。
+//        //mLocationOption.setOnceLocationLatest(true);
+//        //单位是毫秒，默认30000毫秒，建议超时时间不要低于8000毫秒。
+//        mLocationOption.setHttpTimeOut(10000);
+//        //给定位客户端对象设置定位参数
+//        mLocationClient.setLocationOption(mLocationOption);
+//        //设置定位回调监听
+//        mLocationClient.setLocationListener(mLocationListener);
+//        mLocationClient.startLocation();
+        //在每次开始定位前，都要先初始化一下
+        amapManager.initAmapBeforeStart();
+        //开始定位
+        startAmapSercvice();
 
     }
 
@@ -447,8 +441,12 @@ private String dingdingStr;
             mapService.setOnLocationSuccessListener(new MapService.OnLocationSuccessListener() {
                 @Override
                 public void onSuccess(Location location) {
-                    //speedTv.setText("速度：" + location.speed + "m/s");
                     amapManager.onAmapLocationSucces(location);
+                    if (!SystemUtils.getGpsStatus(MainActivity.this)){
+                        Toast.makeText(MainActivity.this, "Gps已被关闭，请打开！", Toast.LENGTH_SHORT).show();
+                    }
+                    
+                    
                 }
             });
             //定位失败
@@ -494,7 +492,7 @@ private String dingdingStr;
     /**
      * 停止服务
      */
-    private void stopMapService() {
+    private void    stopMapService() {
 
         //由系统或用户停止服务后，不需要重启
         SharedUtil.putValue(MainActivity.this, SharedUtil.isRestartService, false);
@@ -603,21 +601,6 @@ private String dingdingStr;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -680,13 +663,22 @@ private String dingdingStr;
                                     String distance=bizDataJsonObj.optString("distance");
                                     String timing=bizDataJsonObj.optString("timing");
                                     String switch_flag=bizDataJsonObj.optString("switch_flag");
-                                    String endTime="";
+                                    String date=bizDataJsonObj.optString("date");;
                                    // GlobalState.getInstance().setDistance(distance);
                                    // GlobalState.getInstance().setTiming(timing);
                                     SharedUtil.putValue(this,SharedUtil.distance,distance);
                                     SharedUtil.putValue(this,SharedUtil.timing,timing);
                                     SharedUtil.putValue(this,SharedUtil.switch_flag,switch_flag);
-                                    SharedUtil.putValue(this,SharedUtil.endTime,endTime);
+                                    SharedUtil.putValue(this,SharedUtil.endTime,date);
+                                    //如果是0 说明要关闭服务
+                                    if ("0".equals(switch_flag)){
+                                        stopMapService();
+                                        //停止服务后，画终点
+                                        amapManager.drawLastPositionFromDB();
+                                    }
+
+
+
                                     return;
                                 }
                             }

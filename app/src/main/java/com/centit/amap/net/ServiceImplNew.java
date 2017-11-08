@@ -3,12 +3,16 @@ package com.centit.amap.net;
 import android.os.Handler;
 
 import com.centit.GlobalState;
+import com.centit.amap.database.Location;
 import com.centit.app.cmipConstant.Constant_Mgr;
 import com.centit.app.cmipNetHandle.NetRequestController;
 import com.centit.core.tools.netUtils.baseEngine.netTask.NetTask;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 import okhttp3.Callback;
 
@@ -94,7 +98,48 @@ public class ServiceImplNew {
     }
 
 
+    public static void reportUserNewPosition(int requestType,
+                                             String corpid, String userid, String username, String userphoto,
+                                             String daptid, String daptname, String lat, String lng,
+                                             String devicetype, String devicecode, String appservion, String gps_flag,
+                                             String acquisitiontime, List<Location> pointList, Callback callback) {
+        GlobalState.getInstance().setmMethodName("/reportUserNewPosition");
 
+
+        JSONObject requestObj = new JSONObject();
+        try {
+            requestObj.put("corpid", corpid);
+            requestObj.put("userid", userid);
+            requestObj.put("username", username);
+            requestObj.put("userphoto", userphoto);
+            requestObj.put("daptid", daptid);
+            requestObj.put("daptname", daptname);
+            requestObj.put("lng", lng);
+            requestObj.put("lat", lat);
+            requestObj.put("devicetype", devicetype);
+            requestObj.put("devicecode", devicecode);
+            requestObj.put("appservion", appservion);
+            requestObj.put("gps_flag", gps_flag);
+            requestObj.put("acquisitiontime", acquisitiontime);
+
+            JSONArray jsonArray=new JSONArray();
+            for (int i = 0; i <pointList.size() ; i++) {
+                JSONObject positionObject=new JSONObject();
+                positionObject.put("lng",pointList.get(i).lng);
+                positionObject.put("lat",pointList.get(i).lat);
+                positionObject.put("acquisitiontime",pointList.get(i).time);
+                jsonArray.put(positionObject);
+            }
+            requestObj.put("pointList",jsonArray);
+
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        OkHttpUtil.getInstance();
+        OkHttpUtil.post(Constant_Mgr.getMIP_BAES_URL(), requestObj, callback);
+    }
 
 
 
@@ -139,6 +184,12 @@ public class ServiceImplNew {
         OkHttpUtil.getInstance();
         OkHttpUtil.post(url, requestObj, callback);
     }
+
+
+
+
+
+
 
 
     /**

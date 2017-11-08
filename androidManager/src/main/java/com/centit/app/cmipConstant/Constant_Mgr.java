@@ -55,6 +55,9 @@ public class Constant_Mgr
     //是否为测试模式
      public static   boolean  isTestMode=false;
 
+    //是否为真实环境
+    public static   boolean  isRealEnvironment=false;
+
     //"apptype":"应用类型：0安卓；1苹果",
     public static   String  appType="0";
 
