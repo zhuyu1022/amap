@@ -85,7 +85,9 @@ public class AmapManager {
         markerOptions.anchor(0.5f, 1.0f).icon(BitmapDescriptorFactory.fromResource(R.drawable.start2_80));
     }
 
-    private void clear(){
+    public void clear(){
+        //进行数据库清空
+        dbManager.clear();
         //清空坐标集合
         latLngs.clear();
         //i = 0;

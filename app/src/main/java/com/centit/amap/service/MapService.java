@@ -24,10 +24,12 @@ import com.amap.api.location.CoordinateConverter;
 import com.amap.api.location.DPoint;
 import com.centit.amap.MainActivity;
 import com.centit.amap.R;
+import com.centit.amap.avtivity.SettingActivity;
 import com.centit.amap.constant.Constant;
 import com.centit.amap.database.Location;
 import com.centit.amap.database.MapDatebaseManager;
 import com.centit.amap.net.ServiceImpl;
+import com.centit.amap.net.ServiceImplNew;
 import com.centit.amap.util.BatteryUtils;
 import com.centit.amap.util.LogUtil;
 import com.centit.amap.util.SharedUtil;
@@ -38,11 +40,16 @@ import com.centit.core.baseView.baseUI.MIPBaseService;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 
 public class MapService extends MIPBaseService {
@@ -257,7 +264,10 @@ public class MapService extends MIPBaseService {
                         mSuccessListener.onSuccess(location);
                     }
                 //上传坐标
-                    //startUpLoad(lat+"",lng+"",time);
+                    startUpLoad(lat+"",lng+"",time);
+
+
+
                     //当通过gps获取到地址后，且当前是高精度定位模式下，改成仅设备模式，节省电量
                     if (type == AMapLocation.LOCATION_TYPE_GPS && mLocationOption.getLocationMode() == AMapLocationClientOption.AMapLocationMode.Hight_Accuracy) {
                         //mLocationClient.stopLocation();
@@ -366,6 +376,7 @@ public class MapService extends MIPBaseService {
                             //mLocationClient.startLocation();
                             noGpsTime = 0;
                             LogUtil.save(MapService.this,"\n已经持续10秒无卫星信号，切换回高精度模式");
+                            Toast.makeText(MapService.this, "当前无法获取gps信号，转为高精度定位模式", Toast.LENGTH_SHORT).show();
 
                         }
 
@@ -399,25 +410,67 @@ public class MapService extends MIPBaseService {
     private void startUpLoad(String lat, String lng, String acquisitiontime) {
 
 
-        String corpid = "ding2ace95aa3863334d35c2f4657eb6378f";
-        String userid = "manager6483";
-
-
-        String username = "zhuyu"; //人员姓名
-        String userphoto = ""; //人员头像
-        String daptid = ""; //部门id
-        String daptname = ""; //部门名称
-        //String lat="31.972";//纬度
-        // String lng="118.755";//经度
-        String devicetype = "android"; //设备类型
-        String devicecode = "moto";    //设备编号
-        String appservion = "1.0"; //app版本号
-        String gps_flag = "0"; //是否开启GPS：0开启；1未开启
+//        String corpid = "ding2ace95aa3863334d35c2f4657eb6378f";
+//        String userid = "manager6483";
+//
+//        String username = "zhuyu"; //人员姓名
+//        String userphoto = ""; //人员头像
+//        String daptid = ""; //部门id
+//        String daptname = ""; //部门名称
+//        //String lat="31.972";//纬度
+//        // String lng="118.755";//经度
+//        String devicetype = "android"; //设备类型
+//        String devicecode = "moto";    //设备编号
+//        String appservion = "1.0"; //app版本号
+      //  String gps_flag = "0"; //是否开启GPS：0开启；1未开启
         //String acquisitiontime="20171020121212"; //采集时间（移动端采集时间）yyyyMMddHHmmss
-        ServiceImpl.reportUserNewPosition(null, mHandler, 2, corpid, userid, username, userphoto, daptid, daptname, lat, lng, devicetype, devicecode, appservion, gps_flag, acquisitiontime);
 
+        String corpid = (String) SharedUtil.getValue(this,SharedUtil.corpid,"");
+        String userid = (String) SharedUtil.getValue(this,SharedUtil.userid,"");
+        String username = (String) SharedUtil.getValue(this,SharedUtil.username,"");
+       String userphoto = ""; //人员头像
+        String daptid = ""; //部门id
+      String daptname = ""; //部门名称
+      String devicetype =(String) SharedUtil.getValue(this,SharedUtil.devicetype,""); ; //设备类型
+
+       String devicecode = (String) SharedUtil.getValue(this,SharedUtil.devicecode,"");    //设备编号
+        String appservion =SystemUtils.getVersionName(this);;    //app版本号
+        String gps_flag = "0"; //是否开启GPS：0开启；1未开启
+
+        //ServiceImpl.reportUserNewPosition(null, mHandler, REQUEST_UPLOAD, corpid, userid, username, userphoto, daptid, daptname, lat, lng, devicetype, devicecode, appservion, gps_flag, acquisitiontime);
+        ServiceImplNew.reportUserNewPosition(ServiceImplNew.TYPE_REPORTUSERNEWPOSITION,corpid, userid, username, userphoto, daptid, daptname, lat, lng, devicetype, devicecode, appservion, gps_flag, acquisitiontime,callback);
     }
+    Callback callback = new Callback() {
+        @Override
+        public void onFailure(Call call, IOException e) {
+            LogUtil.d("链接失败！");
+        }
 
+        @Override
+        public void onResponse(Call call, Response response) throws IOException {
+
+
+            String result = response.body().string();
+            Log.d("result", result);
+            try {
+
+                JSONObject jsonObj = new JSONObject(result);
+                if (jsonObj != null) {
+                    String retCode = jsonObj.optString("retCode");
+                    if (retCode != null && retCode.equals("0")) {
+
+                            LogUtil.d("上传成功！");
+
+                        return;
+                    }
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+    };
 
     /**
      * 计算前n个点的平均速度
@@ -467,183 +520,6 @@ public class MapService extends MIPBaseService {
         return 0;
     }
 
-//    /**
-//     * 计算实时速度，根据时间和距离计算
-//     * @param locationNow
-//    //     */
-//    private float getSpeed(Location locationNow){
-//        //  获得最后几个点
-//        List<Location> locationList=dbManager.querylastLocation(2);
-//        //倒数第一个点
-//        //Location location1=locationList.get(0);
-//        //倒数第二个点
-//        // Location location2=locationList.get(1);
-//        //  获取这几个点中最早的一个点
-//        Location locationStart;
-//        if (locationList.size()>0){
-//            locationStart=locationList.get(locationList.size()-1);
-//        }else{
-//            return 0;
-//        }
-//
-//
-//        DPoint startPoint = new DPoint(locationStart.lat, locationStart.lng);
-//        DPoint     endPoint = new DPoint(locationNow.lat, locationNow.lng);
-//        float distance = CoordinateConverter.calculateLineDistance(startPoint, endPoint);
-//        float speed=0;
-//        try {
-//            Date dateStart=df.parse(locationStart.time);
-//            Date dateEnd=df.parse(locationNow.time);
-//            long time= (dateEnd.getTime()-dateStart.getTime())/1000;
-//            if (time!=0){
-//                speed=distance/time;
-//            }
-//            Log.d(TAG, "getSpeed: time:"+time+"speed:"+speed);
-//            return speed;
-//
-//
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//        return 0;
-//    }
-
-
-    //声明定位回调监听器
-//    public AMapLocationListener mLocationListener = new AMapLocationListener() {
-//        @Override
-//        public void onLocationChanged(AMapLocation aMapLocation) {
-//          if (aMapLocation != null) {
-//                if (aMapLocation.getErrorCode() == 0) {
-//                    //可在其中解析amapLocation获取相应内容。
-//                    int type = aMapLocation.getLocationType();//获取当前定位结果来源，如网络定位结果，详见定位类型表
-//                    float speed = aMapLocation.getSpeed();
-//                    double lat = aMapLocation.getLatitude();//获取纬度
-//                    double lng = aMapLocation.getLongitude();//获取经度
-//                    String address = aMapLocation.getAddress();//地址
-//                    String street = aMapLocation.getStreet();//街道信息
-//                    // Date date = new Date(aMapLocation.getTime());//定位时间
-//                    Date date = new Date();
-//                    String time = df.format(date);
-//
-//                    //生成location实例
-//                    Location location = new Location(time, lat, lng, street, mUserid, speed);
-//                    //type为2时是上次定位的结果，说明当前设备没有移动，所以不做任何操作
-//                    if (type != 2) {
-//
-//                        //查找上一个定位点
-//                        Location lastlocation = dbManager.querylastLocation();
-//                        DPoint startPoint = new DPoint(lastlocation.lat, lastlocation.lng);
-//                        DPoint endPoint = new DPoint(lat, lng);
-//                        //获得本次定位点和上次定位点的距离
-//                        float distance = CoordinateConverter.calculateLineDistance(startPoint, endPoint);
-//                        //大于最小定位距离时才定位
-//                        if (distance > minLocationDistance) {
-//                            isUserStatic=false;
-//                            stopCounter = 0;
-//                            //保存到数据库
-//                            dbManager.add(location);
-//                            //回调接口
-//                            if (mListener != null) {
-//                                mListener.onSuccess(location);
-//                            }
-//                            // 改进的算法 计算下次定位间隔时间
-//                            if (speed > 2) {
-//                                intervaTime = (int) (locationDistance / speed);
-//                                //最小间隔时间为1秒
-//                                if (intervaTime < 1000) {
-//                                    intervaTime = 2000;
-//                                }
-//                            } else {
-//                                //速度特别低时 20秒定位一次
-//                                intervaTime = 10000;
-//                            }
-//                        }
-//                        else {
-//                            //距离过小的情况下说明用户不动
-//                            stopCounter++;
-//                            if (isUserStatic){
-//                                stopCounter=15;
-//                            }
-//                        }
-//                    }
-//                    //type为2 的情况
-//                    else {
-//                        stopCounter++;
-//                        if (isUserStatic){
-//                            stopCounter=15;
-//                        }
-//                    }
-//
-//                    //满10次算用户静止，将间隔时间调大
-//                    if (stopCounter >= 15) {
-//                        //设为60秒
-//                        intervaTime = 60000;
-//                        isUserStatic=true;
-//                        Toast.makeText(MapService.this, "您当前已停止移动", Toast.LENGTH_SHORT).show();
-//                        stopCounter = 0;
-//                    }
-//                    BatteryManager batteryManager=(BatteryManager)getSystemService(BATTERY_SERVICE);
-//                    String battery= null;
-//                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-//                        battery = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)+"%";
-//                    }
-//
-//
-//                    String logStr = "mUserid:" + mUserid + "\ttype:" + type + "\tlat:" + lat + "\tlng:" + lng + " \taddress:" + address + "\t speed:" + speed + "\t time:" + time + " \tintervaTime:" + intervaTime +" \n电量："+ battery+"\n";
-//                    canRecordLog= (boolean) SharedUtil.getValue(MapService.this,SharedUtil.recordLog,false);
-//                    if (canRecordLog) {
-//                        //保存日志
-//                        save(logStr);
-//                    }
-//                    Log.d("MainActivity", "onLocationChanged: \n" + logStr);
-//                    Toast.makeText(MapService.this, logStr, Toast.LENGTH_SHORT).show();
-//
-//                } else {
-//                    String logStr="location Error, ErrCode:"
-//                            + aMapLocation.getErrorCode() + ", errInfo:"
-//                            + aMapLocation.getErrorInfo();
-//                    //定位失败时，可通过ErrCode（错误码）信息来确定失败的原因，errInfo是错误信息，详见错误码表。
-//                    Log.e("AmapError", logStr);
-//                    Toast.makeText(MapService.this, logStr, Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//            //通过Alarm的方式再此启动服务，无论获取定位失败与否都要在此启动
-//            startAlarmService();
-//
-//        }
-//    };
-
-
-
-
-//
-//    /**
-//     * 记录日志
-//     */
-//    private void save(String str) {
-//
-//        FileOutputStream out = null;
-//        BufferedWriter writer = null;
-//
-//        try {
-//            out = openFileOutput("LocatonLog", Context.MODE_APPEND);
-//            writer = new BufferedWriter(new OutputStreamWriter(out));
-//            writer.write(str);
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            try {
-//                if (writer != null) {
-//                    writer.close();
-//                }
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
 
 
 
@@ -729,8 +605,11 @@ public class MapService extends MIPBaseService {
 
                                 if (retCode != null && retCode.equals("0")) {
 
-                                    Toast.makeText(this, "上传成功！", Toast.LENGTH_SHORT).show();
-
+                                    //Toast.makeText(this, "上传成功！", Toast.LENGTH_LONG).show();
+                                    ToastUtil.show(this,"上传成功!");
+                                    return;
+                                }else{
+                                    ToastUtil.show(this,"上传失败!");
                                     return;
                                 }
                             }

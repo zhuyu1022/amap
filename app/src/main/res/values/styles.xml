@@ -9,7 +9,7 @@
     </style>
 
 
-    <!-- 统一返回键的字体style  zhuyu修改 -->
+
     <style name="ItemTextStyle">
         <item name="android:textSize">18sp</item>
         <item name="android:textColor">@android:color/black</item>

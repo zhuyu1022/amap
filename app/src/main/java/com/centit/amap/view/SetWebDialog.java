@@ -6,11 +6,13 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.centit.GlobalState;
 import com.centit.amap.R;
@@ -47,7 +49,13 @@ public class SetWebDialog extends DialogFragment {
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.set_web_dialog_layout, null);
         webAddressEt=view.findViewById(R.id.dialog_webAddressEt);
         String url= GlobalState.getInstance().getmIPAddr();
-        webAddressEt.setText(url);
+        String port= GlobalState.getInstance().getmPortNum();
+        if (TextUtils.isEmpty(port)){
+            webAddressEt.setText(url);
+        }else {
+            webAddressEt.setText(url+":"+port);
+        }
+
         return new AlertDialog.Builder(getActivity())
                 .setView(view)
                 .setTitle("请输入服务器地址")
@@ -63,8 +71,24 @@ public class SetWebDialog extends DialogFragment {
 
 
 
-                        String ip = webAddressEt.getText().toString().trim();
-                        String port = "";
+                        String address = webAddressEt.getText().toString().trim();
+
+                        String ip="";
+                        String port="";
+                        if (address.contains(":")){
+                            //避免输入了“：”，但是没有输入端口号
+                            if (address.split(":").length==2){
+                                ip= address.split(":")[0];
+                                port = address.split(":")[1];
+                            }else{
+                                Toast.makeText(SetWebDialog.this.getContext(), "你输入的ip地址有误,重新输入!", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                        }else{
+                            ip= address;
+                        }
+
+
                         GlobalState.getInstance().setmIPAddr(ip);
                         GlobalState.getInstance().setmPortNum(port);
                         String url = "http://" + ip;
@@ -77,8 +101,6 @@ public class SetWebDialog extends DialogFragment {
                         if (listener!=null){
                             listener.onClick();
                         }
-
-
                     }
                 })
                 .setCancelable(false)

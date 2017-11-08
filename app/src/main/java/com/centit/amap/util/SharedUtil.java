@@ -26,6 +26,9 @@ public class SharedUtil {
 	public static final String deptname="deptname";
 	public static final String distance="distance";
 	public static final String timing="timing";
+	public static final String switch_flag="switch_flag";
+		//截至时间
+	public static final String endTime="endTime";
 
 
 	public static void putValue(Context context, String key, Object value) {

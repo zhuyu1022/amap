@@ -119,4 +119,16 @@ public class LogUtil {
             }
         }
     }
+
+        //清除sd卡中的日志
+    public static void clearLog(Context context) {
+        try {
+            File file = new File(context.getExternalCacheDir(), "LocatonLog.txt");
+            if (file.exists()) {
+                file.delete();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -16,10 +16,13 @@ import okhttp3.Callback;
  * Created by zhu_yu on 2017/10/11.
  */
 
-public class ServiceImpl {
+public class ServiceImplNew {
     public static final int TYPE_DOWNLOADCONFPARAMS = 1;
     public static final int TYPE_REPORTUSERNEWPOSITION = 2;
     public static final int TYPE_GETNEWVERISION = 3;
+    public static final int TYPE_AppVersionCheck = 4;
+    public static final int TYPE_NewVersionAppDownloadUrl = 5;
+    public static final int TYPE_UploadFile = 6;
 
     public static NetTask downloadConfParams(NetTask task, Handler handler, int requestType, String corpid, String userid) {
         GlobalState.getInstance().setmMethodName("/downloadConfParams");
@@ -41,8 +44,6 @@ public class ServiceImpl {
     /**
      * 人员位置实时上报
      *
-     * @param task
-     * @param handler
      * @param requestType
      * @param corpid
      * @param userid
@@ -59,11 +60,11 @@ public class ServiceImpl {
      * @param acquisitiontime
      * @return
      */
-    public static NetTask reportUserNewPosition(NetTask task, Handler handler, int requestType,
+    public static void reportUserNewPosition( int requestType,
                                                 String corpid, String userid, String username, String userphoto,
                                                 String daptid, String daptname, String lat, String lng,
                                                 String devicetype, String devicecode, String appservion, String gps_flag,
-                                                String acquisitiontime) {
+                                                String acquisitiontime,Callback callback) {
         GlobalState.getInstance().setmMethodName("/reportUserNewPosition");
 
 
@@ -88,41 +89,28 @@ public class ServiceImpl {
             e.printStackTrace();
         }
 
-        return NetRequestController.sendStrBaseServletNew(task, handler, requestType, requestObj);
+        OkHttpUtil.getInstance();
+        OkHttpUtil.post(Constant_Mgr.getMIP_BAES_URL(), requestObj, callback);
     }
+
+
+
+
+
+
+
+
 
 
     /**
-     * 获取新版本
+     * 检查新版本
      *
-     * @param task
-     * @param handler
+
      * @param requestType
      * @param corpid
-     * @param userid
-     * @param devicetype
      * @return
      */
-    public static NetTask getNewVersion(NetTask task, Handler handler, int requestType, String corpid, String userid, String devicetype) {
-        GlobalState.getInstance().setmMethodName("/getNewVersion");
-
-
-        JSONObject requestObj = new JSONObject();
-        try {
-            requestObj.put("corpid", corpid);
-            requestObj.put("userid", userid);
-            requestObj.put("devicetype", devicetype);
-        } catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return NetRequestController.sendStrBaseServletNew(task, handler, requestType, requestObj);
-    }
-
-
-    public static NetTask appVersionCheck(NetTask task, Handler handler, int requestType, String corpid, String apptype, String version) {
-        GlobalState.getInstance().setmMethodName("/appVersionCheck");
-
+    public static void  appVersionCheck(int requestType, String corpid, String apptype, String version,Callback callback) {
 
         JSONObject requestObj = new JSONObject();
         try {
@@ -133,7 +121,37 @@ public class ServiceImpl {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        return NetRequestController.sendStrBaseServletNew(task, handler, requestType, requestObj);
+        String url=Constant_Mgr.getMIP_BASEURL()+"/wzInternetConference/service/file/appVersionCheck";
+        OkHttpUtil.getInstance();
+        OkHttpUtil.post(url, requestObj, callback);
+    }
+
+
+    public static void  newVersionAppDownloadUrl(int requestType, String corpid,Callback callback) {
+        JSONObject requestObj = new JSONObject();
+        try {
+            requestObj.put("corpid", corpid);
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        String url=Constant_Mgr.getMIP_BASEURL()+"/wzInternetConference/service/file/newVersionAppDownloadUrl";
+        OkHttpUtil.getInstance();
+        OkHttpUtil.post(url, requestObj, callback);
+    }
+
+
+    /**
+     *
+     * @param requestType
+     * @param filePath
+     * @param callback
+     */
+    public static void  uploadFile(int requestType, String filePath,Callback callback) {
+
+        String url=Constant_Mgr.getMIP_BASEURL()+"/wzInternetConference/service/file/fileUpload";
+        OkHttpUtil.getInstance();
+        OkHttpUtil.postFile(url,filePath,callback);
     }
 
 

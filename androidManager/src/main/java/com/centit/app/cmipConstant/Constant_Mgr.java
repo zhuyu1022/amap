@@ -40,12 +40,23 @@ public class Constant_Mgr
   //  public static String       mConPort                 = "";
 
 
+
+//    public static String       mConIP                   = "www.wuzhenduty.com";
+//
+//    public static String       mConPort                 = "90";
+
+
+
+
  /***********************************巡防轨迹中的变量********************************************/
    //是否打印日志
-     public static   boolean  isRecordLog=true;
+     public static   boolean  isRecordLog=false;
 
     //是否为测试模式
-     public static   boolean  isTestMode=true;
+     public static   boolean  isTestMode=false;
+
+    //"apptype":"应用类型：0安卓；1苹果",
+    public static   String  appType="0";
 
  /*********************************************************************************************/
 
@@ -69,6 +80,10 @@ public class Constant_Mgr
    /**
     * 拼接的url
     */
+
+
+
+
    //public static final String MIP_BAES_URL_BASEServlet = MIP_BASE_SERVERNAME + "/service/task"; // server
                                                                                            
     // 通过前置机下载文件时拼接的字段

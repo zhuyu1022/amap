@@ -23,7 +23,7 @@ public class GetConfParamsService extends MIPBaseService {
     private AlarmManager alarmManager;
     private PendingIntent pendingIntent;
     private String corpid = "" ;
-    private     String userid ="";
+    private  String userid ="";
     public GetConfParamsService() {
     }
 

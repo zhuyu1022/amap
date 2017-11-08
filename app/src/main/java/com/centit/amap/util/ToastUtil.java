@@ -13,9 +13,14 @@ import com.centit.amap.constant.Constant;
 public class ToastUtil {
 
     public static void  show(Context context,String msg){
-        boolean isRecordLog= GlobalState.getInstance().isrecordLog();
-        if (isRecordLog){
+      ///  boolean isRecordLog= GlobalState.getInstance().isrecordLog();
+
+
+        boolean isTestMode=GlobalState.getInstance().isTestMode();
+        if (isTestMode){
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
         }
     }
+
+
 }

@@ -44,18 +44,16 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter>
+<!--            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
                     android:host="detail"
                     android:scheme="maptrack" />
-            </intent-filter>
+            </intent-filter>-->
 
-            <!--
              <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -64,7 +62,6 @@
                     android:host="detail"
                     android:scheme="sinaweibo"/>
             </intent-filter>
-            -->
 
 
             <!--

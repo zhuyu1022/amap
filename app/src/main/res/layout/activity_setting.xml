@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:orientation="vertical"
-            android:background="@android:color/white">
+            android:background="@drawable/bg_layout_click">
             <TextView
                 style="@style/ItemTextStyle"
                 android:layout_width="wrap_content"
@@ -68,7 +68,7 @@
             android:layout_marginRight="16dp"
             >
         </View>
-        <RelativeLayout
+      <!--  <RelativeLayout
             android:id="@+id/userPhotoRl"
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -91,7 +91,7 @@
                 android:layout_marginRight="16dp"
                 android:src="@mipmap/ic_launcher"
                 />
-        </RelativeLayout>
+        </RelativeLayout>-->
 
         <View xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
@@ -113,7 +113,7 @@
             android:layout_height="50dp"
             android:orientation="vertical"
 
-            android:background="@android:color/white">
+            android:background="@drawable/bg_layout_click">
             <TextView
                 style="@style/ItemTextStyle"
                 android:layout_width="wrap_content"
@@ -136,7 +136,7 @@
                     style="@style/ItemTextStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:text="张三丰"
+                    android:text=""
                     />
 
                 <ImageView
@@ -160,32 +160,35 @@
             android:layout_marginRight="16dp"
             >
         </View>
+
         <RelativeLayout
+            android:id="@+id/testRl"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:orientation="vertical"
+            android:background="@drawable/bg_layout_click"
 
-            android:background="@android:color/white">
+            android:orientation="vertical">
+
             <TextView
                 style="@style/ItemTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
-                android:text="测试开启"
                 android:layout_marginLeft="16dp"
-                />
+                android:text="测试开启" />
+
             <CheckBox
                 android:id="@+id/testCheckBox"
                 android:layout_width="65dp"
                 android:layout_height="32dp"
                 android:layout_alignParentRight="true"
-                android:button="@null"
-                android:background="@drawable/checkbox_selector"
                 android:layout_centerVertical="true"
                 android:layout_marginRight="16dp"
-                />
+                android:background="@drawable/checkbox_selector"
+                android:button="@null" />
 
         </RelativeLayout>
+
         <View xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="0.1dp"
@@ -195,17 +198,18 @@
             >
         </View>
         <RelativeLayout
+            android:id="@+id/logRl"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:orientation="vertical"
 
-            android:background="@android:color/white">
+            android:background="@drawable/bg_layout_click">
             <TextView
                 style="@style/ItemTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
-                android:text="记录日志"
+                android:text="日志开启"
                 android:layout_marginLeft="16dp"
                 />
             <CheckBox
@@ -234,7 +238,7 @@
             android:layout_height="50dp"
             android:orientation="vertical"
 
-            android:background="@android:color/white">
+            android:background="@drawable/bg_layout_click">
             <TextView
                 style="@style/ItemTextStyle"
                 android:layout_width="wrap_content"
@@ -244,7 +248,59 @@
                 android:layout_marginLeft="16dp"
                 />
 
+            <Button
+                android:id="@+id/upLoadBtn"
+                android:layout_width="65dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="16dp"
+                android:text="上传"
+                android:backgroundTint="@color/colorPrimary"
+                android:textColor="@android:color/white"
+                />
+
         </RelativeLayout>
+
+        <View xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="0.1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            >
+        </View>
+
+
+        <RelativeLayout
+            android:id="@+id/clearRl"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="vertical"
+            android:background="@drawable/bg_layout_click">
+            <TextView
+                style="@style/ItemTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:text="清除缓存"
+                android:layout_marginLeft="16dp"
+                />
+
+            <Button
+                android:id="@+id/clearBtn"
+                android:layout_width="65dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="16dp"
+                android:text="清除"
+                android:backgroundTint="@color/colorPrimary"
+                android:textColor="@android:color/white"
+                />
+
+        </RelativeLayout>
+
         <View xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="0.1dp"
@@ -266,7 +322,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:orientation="vertical"
-            android:background="@android:color/white">
+            android:background="@drawable/bg_layout_click">
             <TextView
                 style="@style/ItemTextStyle"
                 android:layout_width="wrap_content"
