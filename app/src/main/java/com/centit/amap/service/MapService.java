@@ -83,13 +83,12 @@ public class MapService extends MIPBaseService {
     private MapBinder mBinder = new MapBinder();
 
 
-    PendingIntent pendingIntent ;
+    PendingIntent pendingIntent;
     AlarmManager alarmManager;
 
-    private List<Location> locationList=new ArrayList<>();
+    private List<Location> locationList = new ArrayList<>();
     //服务自动停止时间
-    private String endTime="";
-
+    private String endTime = "";
 
 
     //用于获取service实例
@@ -127,43 +126,44 @@ public class MapService extends MIPBaseService {
         //startAlarmService();
         startBroadcast();
         //开启alarmservice不断唤醒cpu 检查 mapservice
-        if (!SystemUtils.isServiceRunning(this,Constant.MapAlarmCheckService)){
-            Intent intent1=new Intent(this,MapAlarmCheckService.class);
+        if (!SystemUtils.isServiceRunning(this, Constant.MapAlarmCheckService)) {
+            Intent intent1 = new Intent(this, MapAlarmCheckService.class);
             startService(intent1);
         }
-            //定时上传定位点，非常重要！！！！！
+        //定时上传定位点，非常重要！！！！！
         startUploadService();
 
 
     }
+
     //将service变为前台进程
-    private  void startForeground(){
-        Intent intent=new Intent(this,MainActivity.class);
-        PendingIntent pi=PendingIntent.getActivity(this,0,intent,0);
-        Notification notification=new NotificationCompat.Builder(this)
+    private void startForeground() {
+        Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
+        Notification notification = new NotificationCompat.Builder(this)
                 .setContentTitle("巡防轨迹")
                 .setContentText("正在运行")
                 .setWhen(System.currentTimeMillis())
                 .setSmallIcon(R.mipmap.ic_logo)
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(),R.mipmap.ic_logo))
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_logo))
                 .setContentIntent(pi)
                 .build();
-        startForeground(1,notification);
+        startForeground(1, notification);
     }
 
-    private void initDate(){
+    private void initDate() {
 
         mUserid = (String) SharedUtil.getValue(MapService.this, SharedUtil.userid, "");
-        String distance= (String) SharedUtil.getValue(MapService.this,SharedUtil.distance,"10");
+        String distance = (String) SharedUtil.getValue(MapService.this, SharedUtil.distance, "10");
         if (!TextUtils.isEmpty(distance)) {
             locationDistance = Integer.parseInt(distance);
         }
-        endTime=(String) SharedUtil.getValue(MapService.this, SharedUtil.endTime, "2017-12-10");
+        endTime = (String) SharedUtil.getValue(MapService.this, SharedUtil.endTime, "2017-12-10");
 
     }
 
 
-    private void initMap(){
+    private void initMap() {
         //初始化定位
         mLocationClient = new AMapLocationClient(getApplicationContext());
         //初始化AMapLocationClientOption对象
@@ -195,13 +195,13 @@ public class MapService extends MIPBaseService {
     /**
      * 每隔5秒发送一次广播
      */
-    private void startBroadcast(){
+    private void startBroadcast() {
         //创建Alarm并启动
         Intent intent = new Intent("LOCATION_CLOCK");
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
-        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         // 每五秒唤醒一次
-        long second = 1* 1000;
+        long second = 1 * 1000;
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), second, pendingIntent);
     }
 
@@ -209,18 +209,23 @@ public class MapService extends MIPBaseService {
      *
      */
 
-    private  void  startUploadService(){
+    private void startUploadService() {
         //创建Alarm并启动
-        Intent intent = new Intent(this,UpLoadPositionService.class);
-        intent.putExtra("locationList", (Serializable) locationList);
-
-        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, 0);
+        Intent intent = new Intent(this, UpLoadPositionService.class);
+      /*  PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, 0);
         AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
         // 每五秒唤醒一次
         long second = 10* 1000;
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), second, pendingIntent);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), second, pendingIntent);*/
+        startService(intent);
+
     }
 
+    private void stopUploadService() {
+        Intent intent = new Intent(this, UpLoadPositionService.class);
+        stopService(intent);
+
+    }
 
     /**
      * 定时唤醒cpu
@@ -237,9 +242,6 @@ public class MapService extends MIPBaseService {
 //            alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, traggerAtTime, pendingIntent);
 //        }
 //    }
-
-
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         LogUtil.d("");
@@ -250,7 +252,7 @@ public class MapService extends MIPBaseService {
                 mLocationClient.startLocation();
             }
         }).start();
-       // startAlarmService();
+        // startAlarmService();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -264,15 +266,6 @@ public class MapService extends MIPBaseService {
                     //初始化参数，避免服务器更新了，及时保存到本地，使得配置起作用
                     initDate();
                     Date date = new Date();
-                    String currentDate=dfDate.format(date);
-                    //endTime="201711082358";
-                    if (currentDate.equals(endTime)){
-                        //由系统或用户停止服务后，不需要重启
-                        SharedUtil.putValue(    MapService.this, SharedUtil.isRestartService, false);
-                        MapService.this.stopSelf();
-                        Intent stopIntent = new Intent(MapService.this, MapService.class);
-                        stopService(stopIntent);
-                    }
 
 
 
@@ -291,10 +284,26 @@ public class MapService extends MIPBaseService {
                     Location location = new Location(time, lat, lng, street, mUserid, 0);
 
                     //后面吧业务逻辑放在这里，type为2的情况就不要记录了，用户压根就没动
-                 if (type != AMapLocation.LOCATION_TYPE_SAME_REQ) {
+                    if (type != AMapLocation.LOCATION_TYPE_SAME_REQ) {
+                        //如果数据库中有一个以上的点，才计算两点之间的距离
+                        if (dbManager.querylastLocation(1).size() > 0) {
+                            //查找上一个定位点
+                            Location lastlocation = dbManager.querylastLocation(1).get(0);
+                            DPoint startPoint = new DPoint(lastlocation.lat, lastlocation.lng);
+                            DPoint endPoint = new DPoint(lat, lng);
+                            //获得本次定位点和上次定位点的距离
+                            float distance = CoordinateConverter.calculateLineDistance(startPoint, endPoint);
+                            //大于最小定位距离时才定位
+                            if (distance < minLocationDistance) {
+                                LogUtil.d("定位距离小于1m，不打点");
+                                LogUtil.save(MapService.this,"定位距离小于1m，不打点");
+                                return;
+                            }
+                        }
+
 
                         //添加到本次定位集合里
-                        locationList.add(location);
+                        // locationList.add(location);
                         //保存到数据库
                         dbManager.add(location);
                         //回调接口
@@ -302,7 +311,7 @@ public class MapService extends MIPBaseService {
                             mSuccessListener.onSuccess(location);
                         }
                         //上传坐标
-                      //  startUpLoad(lat+"",lng+"",time);
+                        //  startUpLoad(lat+"",lng+"",time);
 
                         //当通过gps获取到地址后，且当前是高精度定位模式下，改成仅设备模式，节省电量
                         if (type == AMapLocation.LOCATION_TYPE_GPS && mLocationOption.getLocationMode() == AMapLocationClientOption.AMapLocationMode.Hight_Accuracy) {
@@ -311,7 +320,7 @@ public class MapService extends MIPBaseService {
                             mLocationOption.setDeviceModeDistanceFilter(locationDistance);
                             mLocationClient.setLocationOption(mLocationOption);
                             //mLocationClient.startLocation();
-                            LogUtil.save(MapService.this,"已获取到gps信号，切换回设备模式");
+                            LogUtil.save(MapService.this, "已获取到gps信号，切换回设备模式");
                         } else {
 //                                 //查找上一个定位点
 //                                Location lastlocation = dbManager.querylastLocation(1).get(0);
@@ -324,15 +333,14 @@ public class MapService extends MIPBaseService {
 //                                     return;
 //                                 }
                         }
-                     //获取电池电量
+                        //获取电池电量
                         String battery = BatteryUtils.getBatteryPercent(MapService.this) + "%";
-                        String logStr = "\ntype:" + type + "\tlat:" + lat + "\tlng:" + lng + " \taddress:" + street + "\t time:" + time + "\nlocationDistance:" + locationDistance + " \n电量：" + battery +  "\n 定位精度：" + mLocationOption.getLocationMode();
-                        LogUtil.save(MapService.this,logStr);
-                        LogUtil.d( logStr);
+                        String logStr = "\ntype:" + type + "\tlat:" + lat + "\tlng:" + lng + " \taddress:" + street + "\t time:" + time + "\nlocationDistance:" + locationDistance + " \n电量：" + battery + "\n 定位精度：" + mLocationOption.getLocationMode();
+                        LogUtil.save(MapService.this, logStr);
+                        LogUtil.d(logStr);
                         // Toast.makeText(MapService.this, logStr, Toast.LENGTH_SHORT).show();
-                        ToastUtil.show(MapService.this,logStr);
-                   }
-
+                        ToastUtil.show(MapService.this, logStr);
+                    }
 
 
                 } else {
@@ -341,8 +349,8 @@ public class MapService extends MIPBaseService {
                     String logStr = "location Error, ErrCode:" + aMapLocation.getErrorCode() + ", errInfo:" + aMapLocation.getErrorInfo();
                     //定位失败时，可通过ErrCode（错误码）信息来确定失败的原因，errInfo是错误信息，详见错误码表。
                     LogUtil.e(logStr);
-                    LogUtil.save(MapService.this,logStr);
-                    ToastUtil.show(MapService.this,logStr);
+                    LogUtil.save(MapService.this, logStr);
+                    ToastUtil.show(MapService.this, logStr);
 
                     //回调接口
                     if (mFailListener != null) {
@@ -370,11 +378,11 @@ public class MapService extends MIPBaseService {
             switch (event) {
                 // 第一次定位
                 case GpsStatus.GPS_EVENT_FIRST_FIX:
-                    LogUtil.d( "第一次定位");
+                    LogUtil.d("第一次定位");
                     break;
                 // 卫星状态改变
                 case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
-                   // LogUtil.d("卫星状态改变");
+                    // LogUtil.d("卫星状态改变");
                     // 获取当前状态
                     GpsStatus gpsStatus = lm.getGpsStatus(null);
                     // 获取卫星颗数的默认最大值
@@ -400,9 +408,9 @@ public class MapService extends MIPBaseService {
                         String logStr = "\n搜索到：" + count + "颗有效卫星,没有gps信号时间" + noGpsTime;
                         LogUtil.d(logStr);
                         //记录日志
-                        LogUtil.save(MapService.this,logStr);
-                       // Toast.makeText(MapService.this, "无卫星时间"+noGpsTime, Toast.LENGTH_SHORT).show();
-                        ToastUtil.show(MapService.this,"无卫星时间:"+noGpsTime);
+                        LogUtil.save(MapService.this, logStr);
+                        // Toast.makeText(MapService.this, "无卫星时间"+noGpsTime, Toast.LENGTH_SHORT).show();
+                        ToastUtil.show(MapService.this, "无卫星时间:" + noGpsTime);
                         //持续时间10秒以上
                         if (noGpsTime >= 10) {
 
@@ -411,7 +419,7 @@ public class MapService extends MIPBaseService {
                             mLocationClient.setLocationOption(mLocationOption);
                             //mLocationClient.startLocation();
                             noGpsTime = 0;
-                            LogUtil.save(MapService.this,"\n已经持续10秒无卫星信号，切换回高精度模式");
+                            LogUtil.save(MapService.this, "\n已经持续10秒无卫星信号，切换回高精度模式");
                             Toast.makeText(MapService.this, "当前无法获取gps信号，转为高精度定位模式", Toast.LENGTH_SHORT).show();
 
                         }
@@ -424,11 +432,11 @@ public class MapService extends MIPBaseService {
                     break;
                 // 定位启动
                 case GpsStatus.GPS_EVENT_STARTED:
-                    LogUtil.d( "定位启动");
+                    LogUtil.d("定位启动");
                     break;
                 // 定位结束
                 case GpsStatus.GPS_EVENT_STOPPED:
-                    LogUtil.d( "定位结束");
+                    LogUtil.d("定位结束");
                     break;
             }
         }
@@ -443,7 +451,7 @@ public class MapService extends MIPBaseService {
      * @param lng
      * @param acquisitiontime
      */
-    private void startUpLoad(String lat, String lng, String acquisitiontime) {
+/*    private void startUpLoad(String lat, String lng, String acquisitiontime) {
 
 
 //        String corpid = "ding2ace95aa3863334d35c2f4657eb6378f";
@@ -475,7 +483,7 @@ public class MapService extends MIPBaseService {
 
         //ServiceImpl.reportUserNewPosition(null, mHandler, REQUEST_UPLOAD, corpid, userid, username, userphoto, daptid, daptname, lat, lng, devicetype, devicecode, appservion, gps_flag, acquisitiontime);
         ServiceImplNew.reportUserNewPosition(ServiceImplNew.TYPE_REPORTUSERNEWPOSITION,corpid, userid, username, userphoto, daptid, daptname, lat, lng, devicetype, devicecode, appservion, gps_flag, acquisitiontime,callback);
-    }
+    }*/
     Callback callback = new Callback() {
         @Override
         public void onFailure(Call call, IOException e) {
@@ -495,7 +503,7 @@ public class MapService extends MIPBaseService {
                     String retCode = jsonObj.optString("retCode");
                     if (retCode != null && retCode.equals("0")) {
 
-                            LogUtil.d("上传成功！");
+                        LogUtil.d("上传成功！");
 
                         return;
                     }
@@ -532,8 +540,8 @@ public class MapService extends MIPBaseService {
             if (i + 1 == locationList.size()) {
                 break;
             }
-            Location locationStart = locationList.get(i+1);
-            Location locationEnd = locationList.get(i );
+            Location locationStart = locationList.get(i + 1);
+            Location locationEnd = locationList.get(i);
             DPoint startPoint = new DPoint(locationStart.lat, locationStart.lng);
             DPoint endPoint = new DPoint(locationEnd.lat, locationEnd.lng);
             distance += CoordinateConverter.calculateLineDistance(startPoint, endPoint);
@@ -542,22 +550,19 @@ public class MapService extends MIPBaseService {
         try {
             Date dateStart = df.parse(locationList.get(0).time);
             Date dateEnd = df.parse(locationList.get(locationList.size() - 1).time);
-            long time = (dateStart.getTime()-dateEnd.getTime() ) / 1000;
+            long time = (dateStart.getTime() - dateEnd.getTime()) / 1000;
             if (time != 0) {
                 speed = distance / time;
             }
             Log.d(TAG, "getSpeed: time:" + time + "speed:" + speed);
             //避免出现负数的情况
-            return Math.abs(speed)  ;
+            return Math.abs(speed);
 
         } catch (ParseException e) {
             e.printStackTrace();
         }
         return 0;
     }
-
-
-
 
 
     private OnLocationSuccessListener mSuccessListener;
@@ -599,6 +604,8 @@ public class MapService extends MIPBaseService {
     public void onDestroy() {
         LogUtil.d("");
         super.onDestroy();
+        //停止上传service
+        stopUploadService();
         //销毁定位客户端,停止定位后，本地定位服务并不会被销毁
         mLocationClient.stopLocation();
         // 销毁定位客户端之后，若要重新开启定位请重新New一个AMapLocationClient对象。
@@ -610,7 +617,7 @@ public class MapService extends MIPBaseService {
             pendingIntent.cancel();
         }
         //Toast.makeText(this, "服务已停止", Toast.LENGTH_SHORT).show();
-        ToastUtil.show(this,"服务已停止");
+        ToastUtil.show(this, "服务已停止");
         //如果不是用户销毁的，则重新启动服务
         boolean isRestartService = (boolean) SharedUtil.getValue(MapService.this, SharedUtil.isRestartService, false);
         if (isRestartService) {
@@ -618,7 +625,7 @@ public class MapService extends MIPBaseService {
             this.startService(intent);
             Toast.makeText(this, "服务已重新开始", Toast.LENGTH_SHORT).show();
         }
-        Intent intent1=new Intent(this,MapAlarmCheckService.class);
+        Intent intent1 = new Intent(this, MapAlarmCheckService.class);
         getApplication().stopService(intent1);
 
     }
@@ -642,10 +649,10 @@ public class MapService extends MIPBaseService {
                                 if (retCode != null && retCode.equals("0")) {
 
                                     //Toast.makeText(this, "上传成功！", Toast.LENGTH_LONG).show();
-                                    ToastUtil.show(this,"上传成功!");
+                                    ToastUtil.show(this, "上传成功!");
                                     return;
-                                }else{
-                                    ToastUtil.show(this,"上传失败!");
+                                } else {
+                                    ToastUtil.show(this, "上传失败!");
                                     return;
                                 }
                             }

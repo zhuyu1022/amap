@@ -53,8 +53,7 @@ public class ServiceImplNew {
      * @param userid
      * @param username
      * @param userphoto
-     * @param daptid
-     * @param daptname
+
      * @param lng
      * @param lat
      * @param devicetype
@@ -64,7 +63,7 @@ public class ServiceImplNew {
      * @param acquisitiontime
      * @return
      */
-    public static void reportUserNewPosition( int requestType,
+ /*   public static void reportUserNewPosition( int requestType,
                                                 String corpid, String userid, String username, String userphoto,
                                                 String daptid, String daptname, String lat, String lng,
                                                 String devicetype, String devicecode, String appservion, String gps_flag,
@@ -95,13 +94,14 @@ public class ServiceImplNew {
 
         OkHttpUtil.getInstance();
         OkHttpUtil.post(Constant_Mgr.getMIP_BAES_URL(), requestObj, callback);
-    }
+    }*/
 
 
     public static void reportUserNewPosition(int requestType,
                                              String corpid, String userid, String username, String userphoto,
-                                             String daptid, String daptname, String lat, String lng,
-                                             String devicetype, String devicecode, String appservion, String gps_flag,
+                                             String deptid, String deptname, String lat, String lng,
+                                             String devicetype, String devicecode,String systemversion  ,String appservion,
+                                             String gps_flag,
                                              String acquisitiontime, List<Location> pointList, Callback callback) {
         GlobalState.getInstance().setmMethodName("/reportUserNewPosition");
 
@@ -112,12 +112,13 @@ public class ServiceImplNew {
             requestObj.put("userid", userid);
             requestObj.put("username", username);
             requestObj.put("userphoto", userphoto);
-            requestObj.put("daptid", daptid);
-            requestObj.put("daptname", daptname);
+            requestObj.put("deptid", deptid);
+            requestObj.put("deptname", deptname);
             requestObj.put("lng", lng);
             requestObj.put("lat", lat);
             requestObj.put("devicetype", devicetype);
             requestObj.put("devicecode", devicecode);
+            requestObj.put("systemversion", systemversion);
             requestObj.put("appservion", appservion);
             requestObj.put("gps_flag", gps_flag);
             requestObj.put("acquisitiontime", acquisitiontime);

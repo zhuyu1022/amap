@@ -24,121 +24,237 @@
 
     </android.support.v7.widget.Toolbar>
 
-    <LinearLayout
-        android:layout_below="@id/toolbar"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingTop="20dp">
-        <include layout="@layout/line_layout"></include>
-
-
-        <RelativeLayout
-            android:id="@+id/userNameRl"
+        android:layout_below="@id/toolbar">
+        <LinearLayout
+            android:layout_below="@id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="match_parent"
             android:orientation="vertical"
-            android:background="@drawable/bg_layout_click">
-            <TextView
-                style="@style/ItemTextStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:text="用户姓名"
-                android:layout_marginLeft="16dp"
-                />
+            android:paddingTop="20dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true">
+            <include layout="@layout/line_layout"></include>
 
-            <TextView
-                android:id="@+id/userNameTv"
-                style="@style/ItemTextStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="张三丰"
-                android:layout_marginRight="16dp"
-                android:layout_alignParentRight="true"
 
-                />
-
-        </RelativeLayout>
-        <View xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="0.1dp"
-            android:background="@android:color/darker_gray"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            >
-        </View>
-      <!--  <RelativeLayout
-            android:id="@+id/userPhotoRl"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:orientation="vertical"
-            android:background="@android:color/white">
-            <TextView
-                style="@style/ItemTextStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:text="头像"
-                android:layout_marginLeft="16dp"
-                />
-            <ImageView
-                android:id="@+id/userPhotoImg"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="16dp"
-                android:src="@mipmap/ic_launcher"
-                />
-        </RelativeLayout>-->
-
-        <View xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="0.1dp"
-            android:background="@android:color/darker_gray"
-            >
-        </View>
-
-        <View xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="0.1dp"
-            android:background="@android:color/darker_gray"
-            android:layout_marginTop="30dp"
-            >
-        </View>
-        <RelativeLayout
-            android:id="@+id/webAddressRl"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:orientation="vertical"
-
-            android:background="@drawable/bg_layout_click">
-            <TextView
-                style="@style/ItemTextStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:text="服务端地址"
-                android:layout_marginLeft="16dp"
-                />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:layout_alignParentRight="true"
-                android:gravity="center"
-                android:layout_marginRight="16dp">
-
+            <RelativeLayout
+                android:id="@+id/userNameRl"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_layout_click">
                 <TextView
-                    android:id="@+id/webAddressTv"
                     style="@style/ItemTextStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:text=""
+                    android:layout_gravity="center_vertical"
+                    android:text="用户姓名"
+                    android:layout_marginLeft="16dp"
                     />
 
+                <TextView
+                    android:id="@+id/userNameTv"
+                    style="@style/ItemTextStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="张三丰"
+                    android:layout_marginRight="16dp"
+                    android:layout_alignParentRight="true"
+
+                    />
+
+            </RelativeLayout>
+            <View xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="0.1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                >
+            </View>
+            <!--  <RelativeLayout
+                  android:id="@+id/userPhotoRl"
+                  android:layout_width="match_parent"
+                  android:layout_height="50dp"
+                  android:orientation="vertical"
+                  android:background="@android:color/white">
+                  <TextView
+                      style="@style/ItemTextStyle"
+                      android:layout_width="wrap_content"
+                      android:layout_height="match_parent"
+                      android:layout_gravity="center_vertical"
+                      android:text="头像"
+                      android:layout_marginLeft="16dp"
+                      />
+                  <ImageView
+                      android:id="@+id/userPhotoImg"
+                      android:layout_width="45dp"
+                      android:layout_height="45dp"
+                      android:layout_centerVertical="true"
+                      android:layout_alignParentRight="true"
+                      android:layout_marginRight="16dp"
+                      android:src="@mipmap/ic_launcher"
+                      />
+              </RelativeLayout>-->
+
+            <View xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="0.1dp"
+                android:background="@android:color/darker_gray"
+                >
+            </View>
+
+            <View xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="0.1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginTop="30dp"
+                >
+            </View>
+            <RelativeLayout
+                android:id="@+id/webAddressRl"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="vertical"
+
+                android:background="@drawable/bg_layout_click">
+                <TextView
+                    style="@style/ItemTextStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:text="服务端地址"
+                    android:layout_marginLeft="16dp"
+                    />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:layout_alignParentRight="true"
+                    android:gravity="center"
+                    android:layout_marginRight="16dp">
+
+                    <TextView
+                        android:id="@+id/webAddressTv"
+                        style="@style/ItemTextStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text=""
+                        />
+
+                    <ImageView
+
+
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/go" />
+                </LinearLayout>
+
+
+
+            </RelativeLayout>
+            <View xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="0.1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                >
+            </View>
+
+            <RelativeLayout
+                android:id="@+id/testRl"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_layout_click"
+
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/ItemTextStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="16dp"
+                    android:text="测试开启" />
+
+                <CheckBox
+                    android:id="@+id/testCheckBox"
+                    android:layout_width="65dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="16dp"
+                    android:background="@drawable/checkbox_selector"
+                    android:button="@null" />
+
+            </RelativeLayout>
+
+            <View xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="0.1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                >
+            </View>
+            <RelativeLayout
+                android:id="@+id/logRl"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="vertical"
+
+                android:background="@drawable/bg_layout_click">
+                <TextView
+                    style="@style/ItemTextStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:text="日志开启"
+                    android:layout_marginLeft="16dp"
+                    />
+                <CheckBox
+                    android:id="@+id/logCheckBox"
+                    android:layout_width="65dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentRight="true"
+                    android:button="@null"
+                    android:background="@drawable/checkbox_selector"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="16dp"
+                    />
+
+            </RelativeLayout>
+            <View xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="0.1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                >
+            </View>
+            <RelativeLayout
+                android:id="@+id/upLoadLogRl"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="vertical"
+
+                android:background="@drawable/bg_layout_click">
+                <TextView
+                    style="@style/ItemTextStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:text="上传日志"
+                    android:layout_marginLeft="16dp"
+                    />
                 <ImageView
 
 
@@ -146,225 +262,140 @@
                     android:layout_height="25dp"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
+                    android:layout_marginRight="16dp"
                     android:src="@drawable/go" />
-            </LinearLayout>
+                <!--  <Button
+                      android:id="@+id/upLoadBtn"
+                      android:layout_width="65dp"
+                      android:layout_height="wrap_content"
+                      android:layout_alignParentRight="true"
+                      android:layout_centerVertical="true"
+                      android:layout_marginRight="16dp"
+                      android:text="上传"
+                      android:backgroundTint="@color/colorPrimary"
+                      android:textColor="@android:color/white"
+                      />-->
 
+            </RelativeLayout>
 
-
-        </RelativeLayout>
-        <View xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="0.1dp"
-            android:background="@android:color/darker_gray"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            >
-        </View>
-
-        <RelativeLayout
-            android:id="@+id/testRl"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@drawable/bg_layout_click"
-
-            android:orientation="vertical">
-
-            <TextView
-                style="@style/ItemTextStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
+            <View xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="0.1dp"
+                android:background="@android:color/darker_gray"
                 android:layout_marginLeft="16dp"
-                android:text="测试开启" />
-
-            <CheckBox
-                android:id="@+id/testCheckBox"
-                android:layout_width="65dp"
-                android:layout_height="32dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
                 android:layout_marginRight="16dp"
-                android:background="@drawable/checkbox_selector"
-                android:button="@null" />
-
-        </RelativeLayout>
-
-        <View xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="0.1dp"
-            android:background="@android:color/darker_gray"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            >
-        </View>
-        <RelativeLayout
-            android:id="@+id/logRl"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:orientation="vertical"
-
-            android:background="@drawable/bg_layout_click">
-            <TextView
-                style="@style/ItemTextStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:text="日志开启"
-                android:layout_marginLeft="16dp"
-                />
-            <CheckBox
-                android:id="@+id/logCheckBox"
-                android:layout_width="65dp"
-                android:layout_height="32dp"
-                android:layout_alignParentRight="true"
-                android:button="@null"
-                android:background="@drawable/checkbox_selector"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="16dp"
-                />
-
-        </RelativeLayout>
-        <View xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="0.1dp"
-            android:background="@android:color/darker_gray"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            >
-        </View>
-        <RelativeLayout
-            android:id="@+id/upLoadLogRl"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:orientation="vertical"
-
-            android:background="@drawable/bg_layout_click">
-            <TextView
-                style="@style/ItemTextStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:text="上传日志"
-                android:layout_marginLeft="16dp"
-                />
-
-            <Button
-                android:id="@+id/upLoadBtn"
-                android:layout_width="65dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="16dp"
-                android:text="上传"
-                android:backgroundTint="@color/colorPrimary"
-                android:textColor="@android:color/white"
-                />
-
-        </RelativeLayout>
-
-        <View xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="0.1dp"
-            android:background="@android:color/darker_gray"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            >
-        </View>
+                >
+            </View>
 
 
-        <RelativeLayout
-            android:id="@+id/clearRl"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:orientation="vertical"
-            android:background="@drawable/bg_layout_click">
-            <TextView
-                style="@style/ItemTextStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:text="清除缓存"
-                android:layout_marginLeft="16dp"
-                />
-
-            <Button
-                android:id="@+id/clearBtn"
-                android:layout_width="65dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="16dp"
-                android:text="清除"
-                android:backgroundTint="@color/colorPrimary"
-                android:textColor="@android:color/white"
-                />
-
-        </RelativeLayout>
-
-        <View xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="0.1dp"
-            android:background="@android:color/darker_gray"
-            >
-        </View>
-
-
-        <View xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="0.1dp"
-            android:background="@android:color/darker_gray"
-            android:layout_marginTop="30dp"
-            >
-        </View>
-
-        <RelativeLayout
-            android:id="@+id/checkNewVersionRl"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:orientation="vertical"
-            android:background="@drawable/bg_layout_click">
-            <TextView
-                style="@style/ItemTextStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:text="检查新版本"
-                android:layout_marginLeft="16dp"
-                />
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:layout_alignParentRight="true"
-                android:gravity="center"
-                android:layout_marginRight="16dp">
+            <RelativeLayout
+                android:id="@+id/clearRl"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_layout_click"
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/versionTv"
                     style="@style/ItemTextStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:text="1.0.1"
-                    />
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="16dp"
+                    android:text="清除缓存" />
+
 
                 <ImageView
+
                     android:layout_width="25dp"
                     android:layout_height="25dp"
-                    android:layout_centerVertical="true"
                     android:layout_alignParentRight="true"
-                    android:src="@drawable/go"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="16dp"
+                    android:src="@drawable/go" />
+
+
+
+
+                <!--   <Button
+                       android:id="@+id/clearBtn"
+                       android:layout_width="65dp"
+                       android:layout_height="wrap_content"
+                       android:layout_alignParentRight="true"
+                       android:layout_centerVertical="true"
+                       android:layout_marginRight="16dp"
+                       android:backgroundTint="@color/colorPrimary"
+                       android:text="清除"
+                       android:textColor="@android:color/white" />-->
+
+            </RelativeLayout>
+
+            <View xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="0.1dp"
+                android:background="@android:color/darker_gray"
+                >
+            </View>
+
+
+            <View xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="0.1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginTop="30dp"
+                >
+            </View>
+
+            <RelativeLayout
+                android:id="@+id/checkNewVersionRl"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_layout_click">
+                <TextView
+                    style="@style/ItemTextStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:text="检查新版本"
+                    android:layout_marginLeft="16dp"
                     />
-            </LinearLayout>
-        </RelativeLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:layout_alignParentRight="true"
+                    android:gravity="center"
+                    android:layout_marginRight="16dp">
 
-        <View xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="0.1dp"
-            android:background="@android:color/darker_gray"
+                    <TextView
+                        android:id="@+id/versionTv"
+                        style="@style/ItemTextStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="1.0.1"
+                        />
 
-            >
-        </View>
-    </LinearLayout>
+                    <ImageView
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentRight="true"
+                        android:src="@drawable/go"
+                        />
+                </LinearLayout>
+            </RelativeLayout>
+
+            <View xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="0.1dp"
+                android:background="@android:color/darker_gray"
+
+                >
+            </View>
+        </LinearLayout>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
 
 
 

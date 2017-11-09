@@ -20,9 +20,12 @@ public class SharedUtil {
     public static final String devicecode =  "devicecode"; //"设备编号",
     public static final String corpid =  "corpid";//"企业id",
     public static final String userid =  "userid"; //"人员id",
+	public static final String userphoto  = "userphoto"; //"人员姓名",
     public static final String username  = "username"; //"人员姓名",
 	public static final String departmentid="departmentid";
 	public static final String departmentname="departmentname";
+	public static final String systemversion="systemversion";
+
 	public static final String distance="distance";
 	public static final String timing="timing";
 	public static final String switch_flag="switch_flag";

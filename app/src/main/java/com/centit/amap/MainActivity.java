@@ -1,9 +1,11 @@
 package com.centit.amap;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -70,13 +72,13 @@ import okhttp3.Response;
 
 public class MainActivity extends MIPBaseActivity {
     private static final String TAG = "MainActivity";
-    public  static final int REQUEST_SettingActivity = 1;
-    public  static final int REQUEST_GPS = 2;
-    private static final String DIALOG_DOWNLOAD="DdownloadDialog";
+    public static final int REQUEST_SettingActivity = 1;
+    public static final int REQUEST_GPS = 2;
+    private static final String DIALOG_DOWNLOAD = "DdownloadDialog";
 
     private Button startBtn;
     private Button stopBtn;
-   // private Button downloadBtn;
+    // private Button downloadBtn;
     private Button testBtn;
 
     private Button clearLogBtn;
@@ -89,15 +91,21 @@ public class MainActivity extends MIPBaseActivity {
     //自定义的地图管理器
     private AmapManager amapManager;
     //钉钉参数
-private String dingdingStr;
+    private String dingdingStr;
     //初始化地图控制器对象
-        AMap aMap;
+    AMap aMap;
     //声明AMapLocationClientOption对象
     private AMapLocationClientOption mLocationOption = null;
     //声明AMapLocationClient类对象
     private AMapLocationClient mLocationClient = null;
     //地图摄像机
     private CameraUpdate mUpdate;
+
+    //new出上边定义好的BroadcastReceiver
+    MyBroadCastReceiver myBroadCastReceiver = new MyBroadCastReceiver();
+
+    //实例化过滤器并设置要过滤的广播
+    IntentFilter intentFilter = new IntentFilter("STOPMAPSERVICE");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate: ");
@@ -114,9 +122,11 @@ private String dingdingStr;
         //下发配置参数
         downloadConfParams();
         //更新新版本
-       appVersionCheck();
+        appVersionCheck();
         //getAppDownloadUrl();
         startAmapSercvice();
+        //注册广播，用于监听 是否到时间停止mapservice
+        registerReceiver(myBroadCastReceiver,intentFilter);
 
 
     }
@@ -126,21 +136,25 @@ private String dingdingStr;
      */
     private void initDate() {
         //初始化APP配置
-        String url=Constant_Mgr.getMIP_BASEURL();
+        String url = Constant_Mgr.getMIP_BASEURL();
         GlobalState.getInstance().setmRequestURL(url);
 
         //获取唯一标识IMEI
-        TelephonyManager TelephonyMgr = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
+        TelephonyManager TelephonyMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
 
-        String devicecode=TelephonyMgr.getDeviceId();
+        String devicecode = TelephonyMgr.getDeviceId();
         //  获取手机型号：
-        String devicetype= android.os.Build.MODEL;
+        String devicetype = android.os.Build.MODEL;
         //获取手机厂商：
-        String carrier= android.os.Build.MANUFACTURER;
+        String carrier = android.os.Build.MANUFACTURER;
+        //获取系统版本号
+        String systemversion = android.os.Build.VERSION.RELEASE;
 
-       SharedUtil.putValue(this, SharedUtil.devicecode, devicecode);
+
+        SharedUtil.putValue(this, SharedUtil.devicecode, devicecode);
         SharedUtil.putValue(this, SharedUtil.devicetype, devicetype);
-      //Toast.makeText(this, "devicecode:"+devicecode+"devicetype:"+devicetype+"carrier:"+carrier, Toast.LENGTH_LONG).show();
+        SharedUtil.putValue(this, SharedUtil.systemversion, systemversion);
+        //Toast.makeText(this, "devicecode:"+devicecode+"devicetype:"+devicetype+"carrier:"+carrier, Toast.LENGTH_LONG).show();
     }
 
 
@@ -149,12 +163,12 @@ private String dingdingStr;
      * 用来对接钉钉
      */
     private void initDingdingDate() {
-        String corpid =null;
+        String corpid = null;
         String userid = null;
-        String username =  null;
-        String userphoto =  null;
-        String departmentid =  null;
-        String  departmentname =null;
+        String username = null;
+        String userphoto = null;
+        String departmentid = null;
+        String departmentname = null;
 //临时添加
 //         corpid = "ding2ace95aa3863334d35c2f4657eb6378f";
 //        userid = "manager6483";
@@ -163,19 +177,22 @@ private String dingdingStr;
 //        SharedUtil.putValue(this, SharedUtil.userid, userid);
 //        SharedUtil.putValue(this, SharedUtil.username, username);
 
+       /* corpid ="dingbc5cedd6d4aa45cd35c2f4657eb6378f";
+        SharedUtil.putValue(this, SharedUtil.corpid, corpid);*/
 
         Uri uri = getIntent().getData();
         if (uri != null) {
-           String uriStr=uri.toString();
+            String uriStr = uri.toString();
             String host = uri.getHost();
             String scheme = uri.getScheme();
 
             corpid = uri.getQueryParameter("corpid");
-             userid = uri.getQueryParameter("userid");
-             username = uri.getQueryParameter("username");
+
+            userid = uri.getQueryParameter("userid");
+            username = uri.getQueryParameter("username");
             departmentid = uri.getQueryParameter("departmentid");
-            departmentname= uri.getQueryParameter("departmentname");
-            dingdingStr="uri全部内容:  "+uriStr+"\nhost:  "+host+"\nscheme:  "+scheme+"\ncorpid:  "+corpid+"\nuserid:  "+userid+"\nusername:  "+username+"\nuserphoto:  "+userphoto;
+            departmentname = uri.getQueryParameter("departmentname");
+            dingdingStr = "uri全部内容:  " + uriStr + "\nhost:  " + host + "\nscheme:  " + scheme + "\ncorpid:  " + corpid + "\nuserid:  " + userid + "\nusername:  " + username + "\nuserphoto:  " + userphoto;
 //
 //           // Toast.makeText(this, "funcode:" + funcode + "lname:" + lname, Toast.LENGTH_SHORT).show();
 //            //保存参数
@@ -185,12 +202,46 @@ private String dingdingStr;
             SharedUtil.putValue(this, SharedUtil.departmentid, departmentid);
             SharedUtil.putValue(this, SharedUtil.departmentname, departmentname);
 
-            LogUtil.d( "uri:" + uri.toString());
-        }else if (uri==null){
-          ;
-            if (TextUtils.isEmpty((String) SharedUtil.getValue(this,SharedUtil.corpid,""))){
-                dingdingStr="uri为空！";
-                SimpleDialog.show(this, "首次打开，请从钉钉打开本应用!", null,new SimpleDialog.OnPositiveClickListener() {
+            //*************************************根据corpid 设置 域名  ，正式环境 到时候注释掉**********************************//
+            boolean isRealEnvironment = Constant_Mgr.isRealEnvironment;
+            if (!isRealEnvironment) {
+                if ("ding2ace95aa3863334d35c2f4657eb6378f".equals(corpid)) {
+                    GlobalState.getInstance().setmIPAddr("lihao.tunnel.qydev.com");
+                    GlobalState.getInstance().setmPortNum("");
+                    GlobalState.getInstance().setmRequestURL(Constant_Mgr.getMIP_BASEURL());
+                } else if ("dingbc5cedd6d4aa45cd35c2f4657eb6378f".equals(corpid)) {
+                    GlobalState.getInstance().setmIPAddr("huyang.tunnel.qydev.com");
+                    GlobalState.getInstance().setmPortNum("");
+                    GlobalState.getInstance().setmRequestURL(Constant_Mgr.getMIP_BASEURL());
+                } else if ("ding19d27657e0b609a535c2f4657eb6378f".equals(corpid)) {
+                    GlobalState.getInstance().setmIPAddr("www.wuzhenduty.com");
+                    GlobalState.getInstance().setmPortNum("90");
+                    GlobalState.getInstance().setmRequestURL(Constant_Mgr.getMIP_BASEURL());
+
+                }
+
+            }
+
+//                开发环境域名：http://lihao.tunnel.qydev.com
+//            开发环境corpid：ding2ace95aa3863334d35c2f4657eb6378f
+//
+//                    ------------------------------------------------------------
+//
+//            测试环境域名：http://huyang.tunnel.qydev.com
+//            测试环境corpid：dingbc5cedd6d4aa45cd35c2f4657eb6378f
+//
+//                    ------------------------------------------------------------
+//
+//            生产环境域名：http://www.wuzhenduty.com:90
+//            生产环境corpid：ding19d27657e0b609a535c2f4657eb6378f
+
+
+            LogUtil.d("uri:" + uri.toString());
+        } else if (uri == null) {
+            ;
+            if (TextUtils.isEmpty((String) SharedUtil.getValue(this, SharedUtil.corpid, ""))) {
+                dingdingStr = "uri为空！";
+                SimpleDialog.show(this, "首次打开，请从钉钉打开本应用!", null, new SimpleDialog.OnPositiveClickListener() {
                     @Override
                     public void onPositiveClick() {
                         MainActivity.this.finish();
@@ -199,10 +250,8 @@ private String dingdingStr;
             }
 
 
-
         }
     }
-
 
 
     private void initView() {
@@ -214,7 +263,7 @@ private String dingdingStr;
 
 
         clearLogBtn = (Button) findViewById(R.id.clearLogBtn);
-        settingImg= (ImageView) findViewById(R.id.settingImg);
+        settingImg = (ImageView) findViewById(R.id.settingImg);
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -222,7 +271,6 @@ private String dingdingStr;
                 amapManager.initAmapBeforeStart();
                 //开始定位
                 startAmapSercvice();
-
 
 
             }
@@ -262,18 +310,24 @@ private String dingdingStr;
             @Override
             public void onClick(View v) {
                 //test1: 钉钉跳转参数测试
-               SimpleDialog.show(MainActivity.this,dingdingStr);
+               SimpleDialog.show(MainActivity.this, dingdingStr);
                 //test2： 下发配置参数接口
-               //downloadConfParams();
+                //downloadConfParams();
                 //ServiceImpl.acceptMessage(null,mHandler,ServiceImpl.TYPE_DOWNLOADCONFPARAMS);
+                //test3 ：发送广播
+//                Intent intent = new  Intent();
+//                //设置intent的动作为com.example.broadcast，可以任意定义
+//                intent.setAction("STOPMAPSERVICE");
+//                //发送无序广播
+//                sendBroadcast(intent);
             }
         });
         settingImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(MainActivity.this, SettingActivity.class);
+                Intent intent = new Intent(MainActivity.this, SettingActivity.class);
 
-                MainActivity.this.startActivityForResult(intent,REQUEST_SettingActivity);
+                MainActivity.this.startActivityForResult(intent, REQUEST_SettingActivity);
             }
         });
     }
@@ -282,35 +336,33 @@ private String dingdingStr;
     /**
      * 下发配置参数
      */
-    private  void downloadConfParams(){
-        String corpid = (String) SharedUtil.getValue(this,SharedUtil.corpid,"");
-        String userid = (String) SharedUtil.getValue(this,SharedUtil.userid,"");
-        ServiceImpl.downloadConfParams(null,mHandler,ServiceImpl.TYPE_DOWNLOADCONFPARAMS,corpid,userid);
+    private void downloadConfParams() {
+        String corpid = (String) SharedUtil.getValue(this, SharedUtil.corpid, "");
+        String userid = (String) SharedUtil.getValue(this, SharedUtil.userid, "");
+        ServiceImpl.downloadConfParams(null, mHandler, ServiceImpl.TYPE_DOWNLOADCONFPARAMS, corpid, userid);
     }
 
     /**
      * 检查新版本
      */
-    private void appVersionCheck(){
+    private void appVersionCheck() {
        /* String corpid = "ding2ace95aa3863334d35c2f4657eb6378f";
         String userid = "manager6483";*/
-        String corpid = (String) SharedUtil.getValue(this,SharedUtil.corpid,"");
-        String userid = (String) SharedUtil.getValue(this,SharedUtil.userid,"");
-      String version=SystemUtils.getVersionName(this);
-        ServiceImplNew.appVersionCheck(ServiceImplNew.TYPE_AppVersionCheck,corpid,Constant_Mgr.appType,version,versionCheckCallback);
+        String corpid = (String) SharedUtil.getValue(this, SharedUtil.corpid, "");
+        String userid = (String) SharedUtil.getValue(this, SharedUtil.userid, "");
+        String version = SystemUtils.getVersionName(this);
+        ServiceImplNew.appVersionCheck(ServiceImplNew.TYPE_AppVersionCheck, corpid, Constant_Mgr.appType, version, versionCheckCallback);
         //ServiceImpl.appVersionCheck(null,mHandler,ServiceImplNew.TYPE_AppVersionCheck,corpid,Constant_Mgr.appType,version);
     }
 
     /**
      * 获取app下载地址
      */
-    private void getAppDownloadUrl(){
-      
-        String corpid = (String) SharedUtil.getValue(this,SharedUtil.corpid,"");
-        ServiceImplNew.newVersionAppDownloadUrl(ServiceImplNew.TYPE_NewVersionAppDownloadUrl,corpid,appDownloadUrlCallback);
+    private void getAppDownloadUrl() {
+
+        String corpid = (String) SharedUtil.getValue(this, SharedUtil.corpid, "");
+        ServiceImplNew.newVersionAppDownloadUrl(ServiceImplNew.TYPE_NewVersionAppDownloadUrl, corpid, appDownloadUrlCallback);
     }
-
-
 
 
     /**
@@ -376,12 +428,7 @@ private String dingdingStr;
         //在每次开始定位前，都要先初始化一下
 
 
-
     }
-
-
-
-
 
 
     //声明定位回调监听器
@@ -422,8 +469,6 @@ private String dingdingStr;
     };
 
 
-
-
     MapService.MapBinder stepBinder = null;
     private ServiceConnection connection = new ServiceConnection() {
         /**
@@ -433,7 +478,7 @@ private String dingdingStr;
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
 
             LogUtil.d("");
-           // amapManager.drawLineFromDB();
+            // amapManager.drawLineFromDB();
             //  获得binder实例
             stepBinder = (MapService.MapBinder) iBinder;
             //调用getservice方法获取service实例
@@ -443,11 +488,11 @@ private String dingdingStr;
                 @Override
                 public void onSuccess(Location location) {
                     amapManager.onAmapLocationSucces(location);
-                    if (!SystemUtils.getGpsStatus(MainActivity.this)){
+                    if (!SystemUtils.getGpsStatus(MainActivity.this)) {
                         Toast.makeText(MainActivity.this, "Gps已被关闭，请打开！", Toast.LENGTH_SHORT).show();
                     }
-                    
-                    
+
+
                 }
             });
             //定位失败
@@ -493,7 +538,7 @@ private String dingdingStr;
     /**
      * 停止服务
      */
-    private void    stopMapService() {
+    public void stopMapService() {
 
         //由系统或用户停止服务后，不需要重启
         SharedUtil.putValue(MainActivity.this, SharedUtil.isRestartService, false);
@@ -505,20 +550,20 @@ private String dingdingStr;
             isBind = false;
         }
     }
+
     private void startAmapSercvice() {
 
-
-        boolean isRunning=SystemUtils.isServiceRunning(this, Constant.MapService);
-        if (!isRunning){
+        boolean isRunning = SystemUtils.isServiceRunning(this, Constant.MapService);
+        if (!isRunning) {
             boolean isRestartService = (boolean) SharedUtil.getValue(this, SharedUtil.isRestartService, true);
             if (isRestartService) {
 
             }
         }
-        MapDatebaseManager dbManager=new MapDatebaseManager(this);
-        List<Location> locationList=dbManager.query();
+        MapDatebaseManager dbManager = new MapDatebaseManager(this);
+        List<Location> locationList = dbManager.query();
         //如果等于0 说明是起点
-        if (locationList.size()==0){
+        if (locationList.size() == 0) {
             amapManager.initAmapBeforeStart();
         }
         Intent startIntent = new Intent(MainActivity.this, MapService.class);
@@ -537,13 +582,13 @@ private String dingdingStr;
 
         @Override
         public void onResponse(Call call, Response response) throws IOException {
-            if (response.code()!=200){
-               // Toast.makeText(MainActivity.this, "服务器连接失败！", Toast.LENGTH_SHORT).show();
+            if (response.code() != 200) {
+                // Toast.makeText(MainActivity.this, "服务器连接失败！", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-           String result = response.body().string();
-            LogUtil.d("result:"+ result);
+            String result = response.body().string();
+            LogUtil.d("result:" + result);
             try {
                 JSONObject jsonObj = new JSONObject(result);
                 if (jsonObj != null) {
@@ -551,24 +596,24 @@ private String dingdingStr;
                     if (retCode != null && retCode.equals("0")) {
                         // 在此处理业务逻辑
                         JSONObject bizDataJsonObj = jsonObj.optJSONObject("bizData");
-                            if (bizDataJsonObj!=null){
-                                String retVersionCode=bizDataJsonObj.optString("retVersionCode");
-                                if ("0".equals(retVersionCode)){
-                                    //不需要更新
-                                }else if("1".equals(retVersionCode)){
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            SimpleDialog.forceShow(MainActivity.this, "检查到新版本，是否立刻升级？", null, new SimpleDialog.OnPositiveClickListener() {
-                                                @Override
-                                                public void onPositiveClick() {
-                                                    getAppDownloadUrl();
-                                                }
-                                            });
-                                        }
-                                    });
-                                }
+                        if (bizDataJsonObj != null) {
+                            String retVersionCode = bizDataJsonObj.optString("retVersionCode");
+                            if ("0".equals(retVersionCode)) {
+                                //不需要更新
+                            } else if ("1".equals(retVersionCode)) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        SimpleDialog.forceShow(MainActivity.this, "检查到新版本，是否立刻升级？", null, new SimpleDialog.OnPositiveClickListener() {
+                                            @Override
+                                            public void onPositiveClick() {
+                                                getAppDownloadUrl();
+                                            }
+                                        });
+                                    }
+                                });
                             }
+                        }
                         return;
                     }
                 }
@@ -579,15 +624,15 @@ private String dingdingStr;
     };
 
 
-
     Callback appDownloadUrlCallback = new Callback() {
         @Override
         public void onFailure(Call call, IOException e) {
         }
+
         @Override
         public void onResponse(Call call, Response response) throws IOException {
             String result = response.body().string();
-            LogUtil.d("result:"+ result);
+            LogUtil.d("result:" + result);
             try {
                 JSONObject jsonObj = new JSONObject(result);
                 if (jsonObj != null) {
@@ -595,16 +640,16 @@ private String dingdingStr;
                     if (retCode != null && retCode.equals("0")) {
                         // 在此处理业务逻辑
                         JSONObject bizDataJsonObj = jsonObj.optJSONObject("bizData");
-                        if (bizDataJsonObj!=null){
+                        if (bizDataJsonObj != null) {
 
-                            JSONArray jsonArray=bizDataJsonObj.optJSONArray("appVersionList");
+                            JSONArray jsonArray = bizDataJsonObj.optJSONArray("appVersionList");
                             for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject jsonObject=jsonArray.getJSONObject(i);
-                                if ("0".equals(jsonObject.optString("apptype"))){
-                                    String fileUrl=jsonObject.optString("fileurl");
-                                    if (!TextUtils.isEmpty(fileUrl)){
-                                        DownloadDialog dialog=DownloadDialog.newInstance(fileUrl);
-                                        dialog.show(getSupportFragmentManager(),DIALOG_DOWNLOAD);
+                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                if ("0".equals(jsonObject.optString("apptype"))) {
+                                    String fileUrl = jsonObject.optString("fileurl");
+                                    if (!TextUtils.isEmpty(fileUrl)) {
+                                        DownloadDialog dialog = DownloadDialog.newInstance(fileUrl);
+                                        dialog.show(getSupportFragmentManager(), DIALOG_DOWNLOAD);
                                     }
                                     break;
                                 }
@@ -621,35 +666,27 @@ private String dingdingStr;
     };
 
 
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQUEST_SettingActivity:
 
-                if (resultCode==RESULT_OK&& requestCode == REQUEST_SettingActivity){
-                    boolean isClear=data.getExtras().getBoolean("isClear");
-                    if (isClear){
+                if (resultCode == RESULT_OK && requestCode == REQUEST_SettingActivity) {
+                    boolean isClear = data.getExtras().getBoolean("isClear");
+                    if (isClear) {
                         amapManager.clear();
                         amapManager.initAmapBeforeStart();
-                        stopMapService();
-                        startAmapSercvice();
+                        //stopMapService();
+                        // startAmapSercvice();
                         LogUtil.clearLog(MainActivity.this);
                     }
-              }
+                }
                 break;
             default:
                 break;
         }
     }
-
-
-
-
-
-
 
 
     @Override
@@ -667,17 +704,16 @@ private String dingdingStr;
     }
 
 
-
     @Override
     public void onPostHandle(int requestType, Object objHeader, Object objBody, boolean error, int errorCode) {
         if (error) {
-            LogUtil.d( requestType+"");
+            LogUtil.d(requestType + "");
             switch (requestType) {
                 case ServiceImpl.TYPE_DOWNLOADCONFPARAMS:
 
                     if (objBody != null && objBody instanceof String) {
                         try {
-                            LogUtil.d("返回的数据为："+ objBody.toString());
+                            LogUtil.d("返回的数据为：" + objBody.toString());
                             JSONObject jsonObj = new JSONObject((String) objBody);
                             if (jsonObj != null) {
                                 String retCode = jsonObj.optString("retCode");
@@ -685,23 +721,23 @@ private String dingdingStr;
                                 if (retCode != null && retCode.equals("0")) {
                                     // 在此处理业务逻辑
                                     JSONObject bizDataJsonObj = jsonObj.optJSONObject("bizData");
-                                    String distance=bizDataJsonObj.optString("distance");
-                                    String timing=bizDataJsonObj.optString("timing");
-                                    String switch_flag=bizDataJsonObj.optString("switch_flag");
-                                    String date=bizDataJsonObj.optString("date");;
-                                   // GlobalState.getInstance().setDistance(distance);
-                                   // GlobalState.getInstance().setTiming(timing);
-                                    SharedUtil.putValue(this,SharedUtil.distance,distance);
-                                    SharedUtil.putValue(this,SharedUtil.timing,timing);
-                                    SharedUtil.putValue(this,SharedUtil.switch_flag,switch_flag);
-                                    SharedUtil.putValue(this,SharedUtil.endTime,date);
+                                    String distance = bizDataJsonObj.optString("distance");
+                                    String timing = bizDataJsonObj.optString("timing");
+                                    String switch_flag = bizDataJsonObj.optString("switch_flag");
+                                    String date = bizDataJsonObj.optString("date");
+                                    ;
+                                    // GlobalState.getInstance().setDistance(distance);
+                                    // GlobalState.getInstance().setTiming(timing);
+                                    SharedUtil.putValue(this, SharedUtil.distance, distance);
+                                    SharedUtil.putValue(this, SharedUtil.timing, timing);
+                                    SharedUtil.putValue(this, SharedUtil.switch_flag, switch_flag);
+                                    SharedUtil.putValue(this, SharedUtil.endTime, date);
                                     //如果是0 说明要关闭服务
-                                    if ("0".equals(switch_flag)){
+                                    if ("0".equals(switch_flag)) {
                                         stopMapService();
                                         //停止服务后，画终点
                                         amapManager.drawLastPositionFromDB();
                                     }
-
 
 
                                     return;
@@ -722,8 +758,22 @@ private String dingdingStr;
             }
         }
 
-
     }
+
+
+
+
+
+
+    class MyBroadCastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "onReceive: 时间到了，接收到停止MAPSERVICE服务的广播");
+                stopMapService();
+        }
+    }
+
 
     @Override
     protected void onRestart() {
@@ -736,14 +786,14 @@ private String dingdingStr;
     protected void onResume() {
         LogUtil.d("");
         super.onResume();
-        boolean isTestMode=GlobalState.getInstance().isTestMode();
-        if (isTestMode){
-           startBtn.setVisibility(View.VISIBLE);
-           stopBtn.setVisibility(View.VISIBLE);
+        boolean isTestMode = GlobalState.getInstance().isTestMode();
+        if (isTestMode) {
+            startBtn.setVisibility(View.VISIBLE);
+            stopBtn.setVisibility(View.VISIBLE);
             //downloadBtn.setVisibility(View.VISIBLE);
             testBtn.setVisibility(View.VISIBLE);
             clearLogBtn.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             startBtn.setVisibility(View.GONE);
             stopBtn.setVisibility(View.GONE);
             //downloadBtn.setVisibility(View.GONE);
@@ -754,7 +804,7 @@ private String dingdingStr;
 
         //在activity执行onResume时执行mMapView.onResume ()，重新绘制加载地图
         mMapView.onResume();
-         amapManager.drawLineFromDB();
+        amapManager.drawLineFromDB();
 
     }
 
@@ -763,7 +813,7 @@ private String dingdingStr;
         LogUtil.d("");
         super.onPause();
         //在activity执行onPause时执行mMapView.onPause ()，暂停地图的绘制
-          mMapView.onPause();
+        mMapView.onPause();
     }
 
     @Override
@@ -772,8 +822,6 @@ private String dingdingStr;
         //在activity执行onSaveInstanceState时执行mMapView.onSaveInstanceState (outState)，保存地图当前的状态
         mMapView.onSaveInstanceState(outState);
     }
-
-
 
 
 }
