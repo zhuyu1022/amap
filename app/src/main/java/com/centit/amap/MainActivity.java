@@ -38,8 +38,10 @@ import com.centit.GlobalState;
 import com.centit.amap.avtivity.SettingActivity;
 import com.centit.amap.constant.Constant;
 import com.centit.amap.database.Location;
+import com.centit.amap.database.MapDatebaseManager;
 import com.centit.amap.net.ServiceImpl;
 import com.centit.amap.net.ServiceImplNew;
+import com.centit.amap.service.MapAlarmCheckService;
 import com.centit.amap.service.MapService;
 import com.centit.amap.util.BatteryUtils;
 import com.centit.amap.util.LogUtil;
@@ -59,6 +61,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -88,7 +91,7 @@ public class MainActivity extends MIPBaseActivity {
     //钉钉参数
 private String dingdingStr;
     //初始化地图控制器对象
-    AMap aMap;
+        AMap aMap;
     //声明AMapLocationClientOption对象
     private AMapLocationClientOption mLocationOption = null;
     //声明AMapLocationClient类对象
@@ -105,12 +108,17 @@ private String dingdingStr;
         initAmap(savedInstanceState);
         initView();
         initGPS();
-        bindMapService();
+
+
+        //bindMapService();
         //下发配置参数
         downloadConfParams();
         //更新新版本
        appVersionCheck();
         //getAppDownloadUrl();
+        startAmapSercvice();
+
+
     }
 
     /**
@@ -366,20 +374,13 @@ private String dingdingStr;
 //        mLocationClient.setLocationListener(mLocationListener);
 //        mLocationClient.startLocation();
         //在每次开始定位前，都要先初始化一下
-        amapManager.initAmapBeforeStart();
-        //开始定位
-        startAmapSercvice();
+
+
 
     }
 
 
-    private void startAmapSercvice() {
-        Intent startIntent = new Intent(MainActivity.this, MapService.class);
-        isBind = bindService(startIntent, connection, Context.BIND_AUTO_CREATE);
-        //开始服务
-        startService(startIntent);
 
-    }
 
 
 
@@ -432,7 +433,7 @@ private String dingdingStr;
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
 
             LogUtil.d("");
-            amapManager.drawLineFromDB();
+           // amapManager.drawLineFromDB();
             //  获得binder实例
             stepBinder = (MapService.MapBinder) iBinder;
             //调用getservice方法获取service实例
@@ -504,7 +505,28 @@ private String dingdingStr;
             isBind = false;
         }
     }
+    private void startAmapSercvice() {
 
+
+        boolean isRunning=SystemUtils.isServiceRunning(this, Constant.MapService);
+        if (!isRunning){
+            boolean isRestartService = (boolean) SharedUtil.getValue(this, SharedUtil.isRestartService, true);
+            if (isRestartService) {
+
+            }
+        }
+        MapDatebaseManager dbManager=new MapDatebaseManager(this);
+        List<Location> locationList=dbManager.query();
+        //如果等于0 说明是起点
+        if (locationList.size()==0){
+            amapManager.initAmapBeforeStart();
+        }
+        Intent startIntent = new Intent(MainActivity.this, MapService.class);
+        isBind = bindService(startIntent, connection, Context.BIND_AUTO_CREATE);
+        //开始服务
+        startService(startIntent);
+
+    }
 
 
     Callback versionCheckCallback = new Callback() {
@@ -610,7 +632,10 @@ private String dingdingStr;
                 if (resultCode==RESULT_OK&& requestCode == REQUEST_SettingActivity){
                     boolean isClear=data.getExtras().getBoolean("isClear");
                     if (isClear){
+                        amapManager.clear();
                         amapManager.initAmapBeforeStart();
+                        stopMapService();
+                        startAmapSercvice();
                         LogUtil.clearLog(MainActivity.this);
                     }
               }
@@ -729,8 +754,7 @@ private String dingdingStr;
 
         //在activity执行onResume时执行mMapView.onResume ()，重新绘制加载地图
         mMapView.onResume();
-
-       // amapManager.drawLineFromDB();
+         amapManager.drawLineFromDB();
 
     }
 

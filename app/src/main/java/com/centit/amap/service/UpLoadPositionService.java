@@ -36,7 +36,7 @@ public class UpLoadPositionService extends Service {
     //上一次上传服务器时数据库中最后一条记录的id
     int id;
 
-    private String timing="10";
+    private String timing="60";
     public UpLoadPositionService() {
     }
 
@@ -58,7 +58,7 @@ public class UpLoadPositionService extends Service {
     @Override
     public int onStartCommand(Intent intent,  int flags, int startId) {
 
-        //timing= (String) SharedUtil.getValue(this,SharedUtil.timing,"5");
+      timing= (String) SharedUtil.getValue(this,SharedUtil.timing,"60");
 
         //记录数据库中大于该id的所有记录
         List<Location> locationList=dbManager.queryLocationsById(id);

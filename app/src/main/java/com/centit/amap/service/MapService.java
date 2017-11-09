@@ -63,7 +63,7 @@ public class MapService extends MIPBaseService {
     //日期格式
     private SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
     //日期格式
-    private SimpleDateFormat dfDate = new SimpleDateFormat("yyyyMMddHHmm");
+    private SimpleDateFormat dfDate = new SimpleDateFormat("yyyyMMdd");
     //android原生定位管理器
     private LocationManager lm;
     //声明AMapLocationClientOption对象
@@ -265,7 +265,7 @@ public class MapService extends MIPBaseService {
                     initDate();
                     Date date = new Date();
                     String currentDate=dfDate.format(date);
-                    endTime="201711082358";
+                    //endTime="201711082358";
                     if (currentDate.equals(endTime)){
                         //由系统或用户停止服务后，不需要重启
                         SharedUtil.putValue(    MapService.this, SharedUtil.isRestartService, false);
@@ -291,7 +291,7 @@ public class MapService extends MIPBaseService {
                     Location location = new Location(time, lat, lng, street, mUserid, 0);
 
                     //后面吧业务逻辑放在这里，type为2的情况就不要记录了，用户压根就没动
-                  // if (type != AMapLocation.LOCATION_TYPE_SAME_REQ) {
+                 if (type != AMapLocation.LOCATION_TYPE_SAME_REQ) {
 
                         //添加到本次定位集合里
                         locationList.add(location);
@@ -331,7 +331,7 @@ public class MapService extends MIPBaseService {
                         LogUtil.d( logStr);
                         // Toast.makeText(MapService.this, logStr, Toast.LENGTH_SHORT).show();
                         ToastUtil.show(MapService.this,logStr);
-                   // }
+                   }
 
 
 

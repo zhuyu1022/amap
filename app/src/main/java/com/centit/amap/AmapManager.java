@@ -43,7 +43,7 @@ public class AmapManager {
     //锚点设置
     private MarkerOptions markerOptions;
     //第一个点是否是起点
-    private boolean isFirstPoint = false;
+    public  boolean isFirstPoint = false;
     //线段的颜色
     int lineColor = Color.argb(255, 216, 30, 6);
 
@@ -69,7 +69,7 @@ public class AmapManager {
      */
     public void initAmapBeforeStart() {
         //每次开始服务之前，进行数据库清空
-        dbManager.clear();
+        //dbManager.clear();
         //清空坐标集合
         latLngs.clear();
         //i = 0;
@@ -153,6 +153,8 @@ public class AmapManager {
 
 
         List<Location> locationList = dbManager.query();
+
+       // List<Location> locationList = dbManager.queryLocationsById(0);
         LatLng latlng = null;
         for (int j = 0; j < locationList.size(); j++) {
             Location location = locationList.get(j);

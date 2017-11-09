@@ -57,8 +57,6 @@ public class MapDatebaseManager {
             Cursor cursor=db.rawQuery("select * from location ",null);
         ArrayList<Location> list=new ArrayList<>();
         if (cursor.moveToFirst()) {
-
-
             do {
                 Location location =new Location();
                 location.time=cursor.getString(1);

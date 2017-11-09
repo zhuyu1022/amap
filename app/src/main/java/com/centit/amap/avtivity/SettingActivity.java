@@ -143,7 +143,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
             testRl.setVisibility(View.GONE);
         }
 
-boolean isRealEnvironment=Constant_Mgr.isRealEnvironment;
+            boolean isRealEnvironment=Constant_Mgr.isRealEnvironment;
         if (isRealEnvironment){
             upLoadLogRl.setVisibility(View.GONE);
             webAddressRl.setVisibility(View.GONE);
@@ -180,8 +180,10 @@ boolean isRealEnvironment=Constant_Mgr.isRealEnvironment;
         boolean isRecordLog= GlobalState.getInstance().isrecordLog();
         if (isRecordLog){
             logCheckBox.setChecked(true);
+            upLoadLogRl.setVisibility(View.VISIBLE);
         }else {
             logCheckBox.setChecked(false);
+            upLoadLogRl.setVisibility(View.GONE);
         }
 
 
@@ -210,8 +212,10 @@ boolean isRealEnvironment=Constant_Mgr.isRealEnvironment;
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     GlobalState.getInstance().setRecordLog(true);
+                    upLoadLogRl.setVisibility(View.VISIBLE);
                 } else {
                     GlobalState.getInstance().setRecordLog(false);
+                    upLoadLogRl.setVisibility(View.GONE);
                 }
             }
         });
@@ -279,8 +283,11 @@ boolean isRealEnvironment=Constant_Mgr.isRealEnvironment;
                     String newFileName="Android_"+SystemUtils.getVersionName(this)+"_"+date+".txt";
                   newfile = new File(getExternalCacheDir(), newFileName);
                     CopyFile(oldfile.getPath(),newfile.getPath());
-
+                }else{
+                    Toast.makeText(SettingActivity.this, "日志不存在！", Toast.LENGTH_SHORT).show();
                 }
+
+
                 break;
             case R.id.clearBtn:
                 isClear=true;
