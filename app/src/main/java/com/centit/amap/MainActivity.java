@@ -116,8 +116,6 @@ public class MainActivity extends MIPBaseActivity {
         initAmap(savedInstanceState);
         initView();
         initGPS();
-
-
         //bindMapService();
         //下发配置参数
         downloadConfParams();
@@ -488,9 +486,7 @@ public class MainActivity extends MIPBaseActivity {
                 @Override
                 public void onSuccess(Location location) {
                     amapManager.onAmapLocationSucces(location);
-                    if (!SystemUtils.getGpsStatus(MainActivity.this)) {
-                        Toast.makeText(MainActivity.this, "Gps已被关闭，请打开！", Toast.LENGTH_SHORT).show();
-                    }
+
 
 
                 }
@@ -698,6 +694,8 @@ public class MainActivity extends MIPBaseActivity {
             unbindService(connection);
             isBind = false;
         }
+        //注销广播
+        unregisterReceiver(myBroadCastReceiver);
         //在activity执行onDestroy时执行mMapView.onDestroy()，销毁地图
         mMapView.onDestroy();
 
@@ -815,6 +813,10 @@ public class MainActivity extends MIPBaseActivity {
         //在activity执行onPause时执行mMapView.onPause ()，暂停地图的绘制
         mMapView.onPause();
     }
+
+
+
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

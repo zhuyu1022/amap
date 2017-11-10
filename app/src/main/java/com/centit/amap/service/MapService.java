@@ -263,12 +263,14 @@ public class MapService extends MIPBaseService {
         public void onLocationChanged(AMapLocation aMapLocation) {
             if (aMapLocation != null) {
                 if (aMapLocation.getErrorCode() == 0) {
+                    //每次定位回调的时候都去检查一下 gps状态，若时关闭，就toast提示
+                    if (!SystemUtils.getGpsStatus(MapService.this)) {
+                        Toast.makeText(MapService.this, "Gps已被关闭，请打开！", Toast.LENGTH_SHORT).show();
+                    }
+
                     //初始化参数，避免服务器更新了，及时保存到本地，使得配置起作用
                     initDate();
                     Date date = new Date();
-
-
-
                     //可在其中解析amapLocation获取相应内容。
                     int type = aMapLocation.getLocationType();//获取当前定位结果来源，如网络定位结果，详见定位类型表
                     //float speed = aMapLocation.getSpeed();
@@ -284,8 +286,15 @@ public class MapService extends MIPBaseService {
                     Location location = new Location(time, lat, lng, street, mUserid, 0);
 
                     //后面吧业务逻辑放在这里，type为2的情况就不要记录了，用户压根就没动
-                    if (type != AMapLocation.LOCATION_TYPE_SAME_REQ) {
-                        //如果数据库中有一个以上的点，才计算两点之间的距离
+                    //if (type != AMapLocation.LOCATION_TYPE_SAME_REQ) {
+                    //定位type 为 2 ，且数据库中有 记录，结束，不打点
+                    if (type == AMapLocation.LOCATION_TYPE_SAME_REQ&&dbManager.query().size()>0){
+                        LogUtil.d("定位类型为2，当前用户静止，不打点");
+                        LogUtil.save(MapService.this,"定位类型为2，当前用户静止，不打点");
+                        return;
+                    }
+
+                    //如果数据库中有一个以上的点，才计算两点之间的距离
                         if (dbManager.querylastLocation(1).size() > 0) {
                             //查找上一个定位点
                             Location lastlocation = dbManager.querylastLocation(1).get(0);
@@ -301,18 +310,14 @@ public class MapService extends MIPBaseService {
                             }
                         }
 
-
-                        //添加到本次定位集合里
-                        // locationList.add(location);
                         //保存到数据库
                         dbManager.add(location);
                         //回调接口
                         if (mSuccessListener != null) {
                             mSuccessListener.onSuccess(location);
                         }
-                        //上传坐标
+                        //上传坐标   上传的接口放在 uploadservice中了，这里不再上传！！
                         //  startUpLoad(lat+"",lng+"",time);
-
                         //当通过gps获取到地址后，且当前是高精度定位模式下，改成仅设备模式，节省电量
                         if (type == AMapLocation.LOCATION_TYPE_GPS && mLocationOption.getLocationMode() == AMapLocationClientOption.AMapLocationMode.Hight_Accuracy) {
                             //mLocationClient.stopLocation();
@@ -322,16 +327,7 @@ public class MapService extends MIPBaseService {
                             //mLocationClient.startLocation();
                             LogUtil.save(MapService.this, "已获取到gps信号，切换回设备模式");
                         } else {
-//                                 //查找上一个定位点
-//                                Location lastlocation = dbManager.querylastLocation(1).get(0);
-//                                DPoint startPoint = new DPoint(lastlocation.lat, lastlocation.lng);
-//                                 DPoint endPoint = new DPoint(lat, lng);
-//                                 //获得本次定位点和上次定位点的距离
-//                                float distance = CoordinateConverter.calculateLineDistance(startPoint, endPoint);
-//                                //大于最小定位距离时才定位
-//                                 if (distance < minLocationDistance) {
-//                                     return;
-//                                 }
+
                         }
                         //获取电池电量
                         String battery = BatteryUtils.getBatteryPercent(MapService.this) + "%";
@@ -340,11 +336,10 @@ public class MapService extends MIPBaseService {
                         LogUtil.d(logStr);
                         // Toast.makeText(MapService.this, logStr, Toast.LENGTH_SHORT).show();
                         ToastUtil.show(MapService.this, logStr);
-                    }
+                   // }
 
 
                 } else {
-
 
                     String logStr = "location Error, ErrCode:" + aMapLocation.getErrorCode() + ", errInfo:" + aMapLocation.getErrorInfo();
                     //定位失败时，可通过ErrCode（错误码）信息来确定失败的原因，errInfo是错误信息，详见错误码表。

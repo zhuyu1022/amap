@@ -187,7 +187,7 @@ public class UpLoadPositionService extends Service {
                     if (retCode != null && retCode.equals("0")) {
 
                         LogUtil.d("上传成功！");
-
+                        LogUtil.save(UpLoadPositionService.this,"上传成功！,上传间隔时间："+timing+"秒");
                         return;
                     }
                 }

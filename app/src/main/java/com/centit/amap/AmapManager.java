@@ -134,7 +134,7 @@ public class AmapManager {
         aMap.moveCamera(mUpdate);//移动摄像头
 
 
-
+    //解决持续绘制时越来越卡顿的算法
         count++;
         if (count==2){
             mlastlatLng=mTemplatLng;
@@ -156,6 +156,7 @@ public class AmapManager {
 
        // List<Location> locationList = dbManager.queryLocationsById(0);
         LatLng latlng = null;
+        polylineOptions = new PolylineOptions().width(10).color(lineColor);
         for (int j = 0; j < locationList.size(); j++) {
             Location location = locationList.get(j);
             latlng = new LatLng(location.lat, location.lng);
