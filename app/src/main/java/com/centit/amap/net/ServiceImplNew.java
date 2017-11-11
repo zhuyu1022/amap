@@ -4,6 +4,7 @@ import android.os.Handler;
 
 import com.centit.GlobalState;
 import com.centit.amap.database.Location;
+import com.centit.amap.util.LogUtil;
 import com.centit.app.cmipConstant.Constant_Mgr;
 import com.centit.app.cmipNetHandle.NetRequestController;
 import com.centit.core.tools.netUtils.baseEngine.netTask.NetTask;
@@ -12,6 +13,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import okhttp3.Callback;
@@ -27,6 +30,10 @@ public class ServiceImplNew {
     public static final int TYPE_AppVersionCheck = 4;
     public static final int TYPE_NewVersionAppDownloadUrl = 5;
     public static final int TYPE_UploadFile = 6;
+
+    //日期格式
+    private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 
     public static NetTask downloadConfParams(NetTask task, Handler handler, int requestType, String corpid, String userid) {
         GlobalState.getInstance().setmMethodName("/downloadConfParams");
@@ -172,7 +179,12 @@ public class ServiceImplNew {
         OkHttpUtil.post(url, requestObj, callback);
     }
 
-
+    /**
+     * 获取app下载地址
+     * @param requestType
+     * @param corpid
+     * @param callback
+     */
     public static void  newVersionAppDownloadUrl(int requestType, String corpid,Callback callback) {
         JSONObject requestObj = new JSONObject();
         try {
@@ -188,7 +200,30 @@ public class ServiceImplNew {
 
 
 
+    public static void  rerportMobileBdPushInfo(int requestType, String corpid,String userid,String username,String bd_channelid,String devicetype,String devicecode,Callback callback) {
+        JSONObject requestObj = new JSONObject();
+        try {
+            requestObj.put("corpid", corpid);
+            requestObj.put("userid", userid);
+            requestObj.put("username", username);
+            requestObj.put("bd_channelid", bd_channelid);
+            requestObj.put("devicetype", devicetype);
+            requestObj.put("devicecode", devicecode);
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        String url=Constant_Mgr.getMIP_BASEURL()+"/wzInternetConference/service/bdpush/rerportMobileBdPushInfo";
+        OkHttpUtil.getInstance();
+        OkHttpUtil.post(url, requestObj, callback);
+    }
 
+/* "corpid ": "企业id "，
+         "userid": "人员id"，
+         "username": "人员名称"，
+         "bd_channelid": "百度推送channelid"
+         "devicetype": "设备类型：0安卓；1苹果"
+         "devicecode": "设备编号"*/
 
 
 

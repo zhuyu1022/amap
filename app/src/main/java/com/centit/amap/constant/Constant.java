@@ -11,6 +11,6 @@ public class Constant {
 
     public  static String MapAlarmCheckService="com.centit.amap.service.MapAlarmCheckService";
 
-
+    public  static String UpLoadPositionService="com.centit.amap.service.UpLoadPositionService";
 
 }

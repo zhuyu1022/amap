@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.centit.GlobalState;
 import com.centit.amap.R;
 import com.centit.amap.util.LogUtil;
+import com.centit.amap.util.SharedUtil;
 import com.centit.app.cmipConstant.Constant_Mgr;
 
 
@@ -101,6 +102,30 @@ public class SetWebDialog extends DialogFragment {
                         if (listener!=null){
                             listener.onClick();
                         }
+
+
+                       /* if ("lihao.tunnel.qydev.com".equals(ip)) {
+                            SharedUtil.putValue(this, SharedUtil.corpid, "ding2ace95aa3863334d35c2f4657eb6378f");
+                        } else if ("huyang.tunnel.qydev.com".equals(ip)) {
+                            SharedUtil.putValue(this, SharedUtil.corpid, "dingbc5cedd6d4aa45cd35c2f4657eb6378f");
+                        } else if ("www.wuzhenduty.com".equals(ip)) {
+                            SharedUtil.putValue(this, SharedUtil.corpid, "ding19d27657e0b609a535c2f4657eb6378f");
+                        }*/
+
+                        //                开发环境域名：http://lihao.tunnel.qydev.com
+//            开发环境corpid：ding2ace95aa3863334d35c2f4657eb6378f
+//
+//                    ------------------------------------------------------------
+//
+//            测试环境域名：http://huyang.tunnel.qydev.com
+//            测试环境corpid：dingbc5cedd6d4aa45cd35c2f4657eb6378f
+//
+//                    ------------------------------------------------------------
+//
+//            生产环境域名：http://www.wuzhenduty.com:90
+//            生产环境corpid：ding19d27657e0b609a535c2f4657eb6378f
+
+
                     }
                 })
                 .setCancelable(false)

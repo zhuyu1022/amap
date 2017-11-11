@@ -57,7 +57,7 @@ public class MapAlarmCheckService extends Service {
 //     */
     private void startAlarmService() {
 
-        long second = 5 * 1000;
+        long second = 5 * 60 * 1000;
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         long traggerAtTime = SystemClock.elapsedRealtime() + second;
         Intent i = new Intent(MapAlarmCheckService.this, MapAlarmCheckService.class);

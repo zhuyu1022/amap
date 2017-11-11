@@ -31,26 +31,25 @@ public class Constant_Mgr
 
 
     // 测试环境 104
-   public static String       mConIP                   = "lihao.tunnel.qydev.com";
+  // public static String       mConIP                   = "lihao.tunnel.qydev.com";
 
-   public static String       mConPort                 = "";
+   //public static String       mConPort                 = "";
 
-    //public static String       mConIP                   = "huyang.tunnel.qydev.com";
-
-  //  public static String       mConPort                 = "";
-
+    public static String       mConIP                   = "huyang.tunnel.qydev.com";
+    public static String       mConPort                 = "";
 
 
-//    public static String       mConIP                   = "www.wuzhenduty.com";
+
+  // public static String       mConIP                   = "www.wuzhenduty.com";
 //
-//    public static String       mConPort                 = "90";
+  // public static String       mConPort                 = "90";
 
 
 
 
  /***********************************巡防轨迹中的变量********************************************/
    //是否打印日志
-     public static   boolean  isRecordLog=false;
+     public static   boolean  isRecordLog=true;
 
     //是否为测试模式
      public static   boolean  isTestMode=false;

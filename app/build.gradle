@@ -36,4 +36,5 @@ dependencies {
     compile 'com.android.support:support-vector-drawable:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
+    compile files('src/main/jniLibs/pushservice-5.9.0.59.jar')
 }

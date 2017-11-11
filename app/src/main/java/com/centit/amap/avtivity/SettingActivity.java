@@ -137,11 +137,11 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
 
         //去掉测试按钮布局
         boolean isTestMode = GlobalState.getInstance().isTestMode();
-        if (isTestMode) {
+       /* if (isTestMode) {
             testRl.setVisibility(View.VISIBLE);
         } else {
             testRl.setVisibility(View.GONE);
-        }
+        }*/
 
         boolean isRealEnvironment = Constant_Mgr.isRealEnvironment;
         if (isRealEnvironment) {

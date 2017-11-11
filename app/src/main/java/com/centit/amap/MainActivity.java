@@ -36,6 +36,8 @@ import com.amap.api.maps.model.CameraPosition;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.MyLocationStyle;
+import com.baidu.android.pushservice.PushConstants;
+import com.baidu.android.pushservice.PushManager;
 import com.centit.GlobalState;
 import com.centit.amap.avtivity.SettingActivity;
 import com.centit.amap.constant.Constant;
@@ -45,6 +47,7 @@ import com.centit.amap.net.ServiceImpl;
 import com.centit.amap.net.ServiceImplNew;
 import com.centit.amap.service.MapAlarmCheckService;
 import com.centit.amap.service.MapService;
+import com.centit.amap.service.UpLoadPositionService;
 import com.centit.amap.util.BatteryUtils;
 import com.centit.amap.util.LogUtil;
 import com.centit.amap.util.SharedUtil;
@@ -62,6 +65,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -75,6 +79,10 @@ public class MainActivity extends MIPBaseActivity {
     public static final int REQUEST_SettingActivity = 1;
     public static final int REQUEST_GPS = 2;
     private static final String DIALOG_DOWNLOAD = "DdownloadDialog";
+    //百度api key
+    private static final String BaiduPush_API="My68wcs2jtME85yOVX5hoBXG";
+
+    private SimpleDateFormat dfDate = new SimpleDateFormat("yyyy-MM-dd");
 
     private Button startBtn;
     private Button stopBtn;
@@ -92,6 +100,16 @@ public class MainActivity extends MIPBaseActivity {
     private AmapManager amapManager;
     //钉钉参数
     private String dingdingStr;
+
+
+    String corpid = "";
+    String userid = "";
+    String username = "";
+    String userphoto = "";
+    String departmentid = "";
+    String departmentname = "";
+    String appversion = "";//app版本号
+
     //初始化地图控制器对象
     AMap aMap;
     //声明AMapLocationClientOption对象
@@ -111,32 +129,41 @@ public class MainActivity extends MIPBaseActivity {
         Log.d(TAG, "onCreate: ");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initAmap(savedInstanceState);
         initDate();
         initDingdingDate();
-        initAmap(savedInstanceState);
+
         initView();
-        initGPS();
+        //从数据库中描点
+        amapManager.drawLineFromDB();
         //bindMapService();
         //下发配置参数
         downloadConfParams();
         //更新新版本
         appVersionCheck();
-        //getAppDownloadUrl();
         startAmapSercvice();
         //注册广播，用于监听 是否到时间停止mapservice
         registerReceiver(myBroadCastReceiver,intentFilter);
-
-
+        //开启百度推送
+       //PushManager.startWork(getApplicationContext(), PushConstants.LOGIN_TYPE_API_KEY,BaiduPush_API);
     }
 
     /**
-     *
+     *初始化数据
      */
     private void initDate() {
         //初始化APP配置
         String url = Constant_Mgr.getMIP_BASEURL();
         GlobalState.getInstance().setmRequestURL(url);
-
+        //app初始化参数
+         corpid = (String) SharedUtil.getValue(this,SharedUtil.corpid,"");
+         userid =(String) SharedUtil.getValue(this,SharedUtil.userid,"");
+         username = (String) SharedUtil.getValue(this,SharedUtil.username,"");
+         userphoto = (String) SharedUtil.getValue(this,SharedUtil.userphoto,"");
+         departmentid =(String) SharedUtil.getValue(this,SharedUtil.departmentid,"");
+       departmentname = (String) SharedUtil.getValue(this,SharedUtil.departmentname,"");
+        //获取app版本号
+        appversion = SystemUtils.getVersionName(this);
         //获取唯一标识IMEI
         TelephonyManager TelephonyMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
 
@@ -148,11 +175,10 @@ public class MainActivity extends MIPBaseActivity {
         //获取系统版本号
         String systemversion = android.os.Build.VERSION.RELEASE;
 
-
-        SharedUtil.putValue(this, SharedUtil.devicecode, devicecode);
+      SharedUtil.putValue(this, SharedUtil.devicecode, devicecode);
         SharedUtil.putValue(this, SharedUtil.devicetype, devicetype);
         SharedUtil.putValue(this, SharedUtil.systemversion, systemversion);
-        //Toast.makeText(this, "devicecode:"+devicecode+"devicetype:"+devicetype+"carrier:"+carrier, Toast.LENGTH_LONG).show();
+
     }
 
 
@@ -161,39 +187,19 @@ public class MainActivity extends MIPBaseActivity {
      * 用来对接钉钉
      */
     private void initDingdingDate() {
-        String corpid = null;
-        String userid = null;
-        String username = null;
-        String userphoto = null;
-        String departmentid = null;
-        String departmentname = null;
-//临时添加
-//         corpid = "ding2ace95aa3863334d35c2f4657eb6378f";
-//        userid = "manager6483";
-//        username="zhuyu";
-//        SharedUtil.putValue(this, SharedUtil.corpid, corpid);
-//        SharedUtil.putValue(this, SharedUtil.userid, userid);
-//        SharedUtil.putValue(this, SharedUtil.username, username);
-
-       /* corpid ="dingbc5cedd6d4aa45cd35c2f4657eb6378f";
-        SharedUtil.putValue(this, SharedUtil.corpid, corpid);*/
-
-        Uri uri = getIntent().getData();
+          Uri uri = getIntent().getData();
+        //如果不为空说明是从钉钉跳  转过来的
         if (uri != null) {
             String uriStr = uri.toString();
             String host = uri.getHost();
             String scheme = uri.getScheme();
-
             corpid = uri.getQueryParameter("corpid");
-
             userid = uri.getQueryParameter("userid");
             username = uri.getQueryParameter("username");
             departmentid = uri.getQueryParameter("departmentid");
             departmentname = uri.getQueryParameter("departmentname");
-            dingdingStr = "uri全部内容:  " + uriStr + "\nhost:  " + host + "\nscheme:  " + scheme + "\ncorpid:  " + corpid + "\nuserid:  " + userid + "\nusername:  " + username + "\nuserphoto:  " + userphoto;
-//
-//           // Toast.makeText(this, "funcode:" + funcode + "lname:" + lname, Toast.LENGTH_SHORT).show();
-//            //保存参数
+
+           //保存参数
             SharedUtil.putValue(this, SharedUtil.corpid, corpid);
             SharedUtil.putValue(this, SharedUtil.userid, userid);
             SharedUtil.putValue(this, SharedUtil.username, username);
@@ -201,7 +207,7 @@ public class MainActivity extends MIPBaseActivity {
             SharedUtil.putValue(this, SharedUtil.departmentname, departmentname);
 
             //*************************************根据corpid 设置 域名  ，正式环境 到时候注释掉**********************************//
-            boolean isRealEnvironment = Constant_Mgr.isRealEnvironment;
+       /*     boolean isRealEnvironment = Constant_Mgr.isRealEnvironment;
             if (!isRealEnvironment) {
                 if ("ding2ace95aa3863334d35c2f4657eb6378f".equals(corpid)) {
                     GlobalState.getInstance().setmIPAddr("lihao.tunnel.qydev.com");
@@ -215,29 +221,20 @@ public class MainActivity extends MIPBaseActivity {
                     GlobalState.getInstance().setmIPAddr("www.wuzhenduty.com");
                     GlobalState.getInstance().setmPortNum("90");
                     GlobalState.getInstance().setmRequestURL(Constant_Mgr.getMIP_BASEURL());
-
                 }
-
-            }
-
+            }*/
 //                开发环境域名：http://lihao.tunnel.qydev.com
 //            开发环境corpid：ding2ace95aa3863334d35c2f4657eb6378f
-//
-//                    ------------------------------------------------------------
-//
+
 //            测试环境域名：http://huyang.tunnel.qydev.com
 //            测试环境corpid：dingbc5cedd6d4aa45cd35c2f4657eb6378f
-//
-//                    ------------------------------------------------------------
-//
+
 //            生产环境域名：http://www.wuzhenduty.com:90
 //            生产环境corpid：ding19d27657e0b609a535c2f4657eb6378f
 
-
             LogUtil.d("uri:" + uri.toString());
-        } else if (uri == null) {
-            ;
-            if (TextUtils.isEmpty((String) SharedUtil.getValue(this, SharedUtil.corpid, ""))) {
+        } else if (uri == null) {;
+            if (TextUtils.isEmpty(corpid)) {
                 dingdingStr = "uri为空！";
                 SimpleDialog.show(this, "首次打开，请从钉钉打开本应用!", null, new SimpleDialog.OnPositiveClickListener() {
                     @Override
@@ -246,8 +243,12 @@ public class MainActivity extends MIPBaseActivity {
                     }
                 });
             }
+        }
 
-
+        dingdingStr = "uri全部内容:  "  + "\ncorpid:  " + corpid + "\nuserid:  " + userid + "\nusername:  " + username + "\nuserphoto:  " + userphoto;
+        //只要corpid 参数不为空，都去启动MapService,说明不是第一次启动，已经有用户数据缓存在本地了
+        if (!TextUtils.isEmpty(corpid)){
+           // startAmapSercvice();
         }
     }
 
@@ -259,12 +260,13 @@ public class MainActivity extends MIPBaseActivity {
         //downloadBtn = (Button) findViewById(R.id.drawBtn);
         testBtn = (Button) findViewById(R.id.testBtn);
 
-
         clearLogBtn = (Button) findViewById(R.id.clearLogBtn);
         settingImg = (ImageView) findViewById(R.id.settingImg);
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                amapManager.clear();
                 //在每次开始定位前，都要先初始化一下
                 amapManager.initAmapBeforeStart();
                 //开始定位
@@ -283,18 +285,6 @@ public class MainActivity extends MIPBaseActivity {
             }
         });
 
-    /*    downloadBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-               //Intent intent=new Intent(MainActivity.this, GetConfParamsService.class);
-                //startService(intent);
-               // startDownload();
-                //下载测试
-                String url="http://www.centit.com/download/WX/WXGIPEreb_V1.0.0.apk";
-                DownloadDialog dialog=DownloadDialog.newInstance(url);
-                dialog.show(getSupportFragmentManager(),DIALOG_DOWNLOAD);
-            }
-        });*/
 
         clearLogBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -312,12 +302,7 @@ public class MainActivity extends MIPBaseActivity {
                 //test2： 下发配置参数接口
                 //downloadConfParams();
                 //ServiceImpl.acceptMessage(null,mHandler,ServiceImpl.TYPE_DOWNLOADCONFPARAMS);
-                //test3 ：发送广播
-//                Intent intent = new  Intent();
-//                //设置intent的动作为com.example.broadcast，可以任意定义
-//                intent.setAction("STOPMAPSERVICE");
-//                //发送无序广播
-//                sendBroadcast(intent);
+
             }
         });
         settingImg.setOnClickListener(new View.OnClickListener() {
@@ -346,19 +331,15 @@ public class MainActivity extends MIPBaseActivity {
     private void appVersionCheck() {
        /* String corpid = "ding2ace95aa3863334d35c2f4657eb6378f";
         String userid = "manager6483";*/
-        String corpid = (String) SharedUtil.getValue(this, SharedUtil.corpid, "");
-        String userid = (String) SharedUtil.getValue(this, SharedUtil.userid, "");
-        String version = SystemUtils.getVersionName(this);
-        ServiceImplNew.appVersionCheck(ServiceImplNew.TYPE_AppVersionCheck, corpid, Constant_Mgr.appType, version, versionCheckCallback);
-        //ServiceImpl.appVersionCheck(null,mHandler,ServiceImplNew.TYPE_AppVersionCheck,corpid,Constant_Mgr.appType,version);
+        /*String corpid = (String) SharedUtil.getValue(this, SharedUtil.corpid, "");
+        String userid = (String) SharedUtil.getValue(this, SharedUtil.userid, "");*/
+        ServiceImplNew.appVersionCheck(ServiceImplNew.TYPE_AppVersionCheck, corpid, Constant_Mgr.appType, appversion, versionCheckCallback);
     }
 
     /**
      * 获取app下载地址
      */
     private void getAppDownloadUrl() {
-
-        String corpid = (String) SharedUtil.getValue(this, SharedUtil.corpid, "");
         ServiceImplNew.newVersionAppDownloadUrl(ServiceImplNew.TYPE_NewVersionAppDownloadUrl, corpid, appDownloadUrlCallback);
     }
 
@@ -369,24 +350,17 @@ public class MainActivity extends MIPBaseActivity {
     private void initGPS() {
         // 判断GPS模块是否开启，如果没有则跳转至设置开启界面，设置完毕后返回到首页
         if (!SystemUtils.getGpsStatus(this)) {
-            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-            dialog.setTitle("提醒：");
-            dialog.setMessage("为了更好的为您服务，请您打开您的GPS!");
-            dialog.setCancelable(false);
-            dialog.setPositiveButton("确定",
-                    new android.content.DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface arg0, int arg1) {
 
-                            // 转到手机设置界面，用户设置GPS
-                            Intent intent = new Intent(
-                                    Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            startActivityForResult(intent, REQUEST_GPS); // 设置完成后返回到原来的界面
+            SimpleDialog.show(this, "当前GPS已被关闭，请打开！", new SimpleDialog.OnPositiveClickListener() {
+                @Override
+                public void onPositiveClick() {
 
-                        }
-                    });
-            dialog.show();
-        } else {
+                    // 转到手机设置界面，用户设置GPS
+                    Intent intent = new Intent(
+                            Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                }
+            });
+
         }
     }
 
@@ -401,35 +375,11 @@ public class MainActivity extends MIPBaseActivity {
         //在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，创建地图
         mMapView.onCreate(savedInstanceState);
         amapManager = new AmapManager(this, mMapView);
-//        if (aMap == null) {
-//            aMap = mMapView.getMap();
-//        }
-//        //初始化定位
-//        mLocationClient = new AMapLocationClient(this);
-//        //初始化AMapLocationClientOption对象
-//        mLocationOption = new AMapLocationClientOption();
-//        //设置定位模式为AMapLocationMode.Hight_Accuracy，高精度模式。高精度定位模式：会同时使用网络定位和GPS定位，优先返回最高精度的定位结果，以及对应的地址描述信息。
-//        mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
-//        //获取一次定位结果：
-//        //该方法默认为false。
-//        mLocationOption.setOnceLocation(true);
-//        //获取最近3s内精度最高的一次定位结果：
-//        //设置setOnceLocationLatest(boolean b)接口为true，启动定位时SDK会返回最近3s内精度最高的一次定位结果。如果设置其为true，setOnceLocation(boolean b)接口也会被设置为true，反之不会，默认为false。
-//        //mLocationOption.setOnceLocationLatest(true);
-//        //单位是毫秒，默认30000毫秒，建议超时时间不要低于8000毫秒。
-//        mLocationOption.setHttpTimeOut(10000);
-//        //给定位客户端对象设置定位参数
-//        mLocationClient.setLocationOption(mLocationOption);
-//        //设置定位回调监听
-//        mLocationClient.setLocationListener(mLocationListener);
-//        mLocationClient.startLocation();
-        //在每次开始定位前，都要先初始化一下
-
 
     }
 
 
-    //声明定位回调监听器
+/*    //声明定位回调监听器
     public AMapLocationListener mLocationListener = new AMapLocationListener() {
         @Override
         public void onLocationChanged(AMapLocation aMapLocation) {
@@ -461,10 +411,8 @@ public class MainActivity extends MIPBaseActivity {
 
                 }
             }
-
-
         }
-    };
+    };*/
 
 
     MapService.MapBinder stepBinder = null;
@@ -486,8 +434,6 @@ public class MainActivity extends MIPBaseActivity {
                 @Override
                 public void onSuccess(Location location) {
                     amapManager.onAmapLocationSucces(location);
-
-
 
                 }
             });
@@ -518,18 +464,7 @@ public class MainActivity extends MIPBaseActivity {
         isBind = bindService(startIntent, connection, Context.BIND_AUTO_CREATE);
     }
 
-    /**
-     * 绑定并开始服务
-     */
-    private void bindAndStartMapService() {
-        Intent startIntent = new Intent(MainActivity.this, MapService.class);
-        //绑定服务
-        isBind = bindService(startIntent, connection, Context.BIND_AUTO_CREATE);
-        //开始服务
-        startService(startIntent);
-        //绑定服务
-        isBind = bindService(startIntent, connection, Context.BIND_AUTO_CREATE);
-    }
+
 
     /**
      * 停止服务
@@ -545,6 +480,10 @@ public class MainActivity extends MIPBaseActivity {
             unbindService(connection);
             isBind = false;
         }
+        //停止服务后，画终点
+        amapManager.drawLastPositionFromDB();
+
+
     }
 
     private void startAmapSercvice() {
@@ -673,8 +612,8 @@ public class MainActivity extends MIPBaseActivity {
                     if (isClear) {
                         amapManager.clear();
                         amapManager.initAmapBeforeStart();
-                        //stopMapService();
-                        // startAmapSercvice();
+                        stopMapService();
+                        startAmapSercvice();
                         LogUtil.clearLog(MainActivity.this);
                     }
                 }
@@ -733,10 +672,8 @@ public class MainActivity extends MIPBaseActivity {
                                     //如果是0 说明要关闭服务
                                     if ("0".equals(switch_flag)) {
                                         stopMapService();
-                                        //停止服务后，画终点
-                                        amapManager.drawLastPositionFromDB();
                                     }
-
+                                    checkEndTime();
 
                                     return;
                                 }
@@ -758,7 +695,24 @@ public class MainActivity extends MIPBaseActivity {
 
     }
 
-
+    /**
+     * 检查服务器结束时间
+     */
+    private void checkEndTime(){
+        String endTime=(String) SharedUtil.getValue(this,SharedUtil.endTime,"");
+        Date date=new Date();
+        String currentDate = dfDate.format(date);
+        //endTime="201711092358";
+        if (currentDate.equals(endTime)) {
+            Toast.makeText(this, "已到结束日期，服务停止！", Toast.LENGTH_SHORT).show();
+            LogUtil.d("发送停止 MapService的广播。。。>>>");
+            Intent intent = new  Intent();
+            //设置intent的动作为com.example.broadcast，可以任意定义
+            intent.setAction("STOPMAPSERVICE");
+            //发送无序广播
+            sendBroadcast(intent);
+        }
+    }
 
 
 
@@ -776,6 +730,10 @@ public class MainActivity extends MIPBaseActivity {
     @Override
     protected void onRestart() {
         LogUtil.d("");
+        //下发配置参数
+        downloadConfParams();
+        //可能用户已经打开过app了，不会走oncreate方法，重新初始化一下
+        initDingdingDate();
         super.onRestart();
 
     }
@@ -784,6 +742,14 @@ public class MainActivity extends MIPBaseActivity {
     protected void onResume() {
         LogUtil.d("");
         super.onResume();
+
+
+
+
+     /*   if (!SystemUtils.getGpsStatus(this)) {
+            Toast.makeText(this, "Gps已被关闭，请打开！", Toast.LENGTH_SHORT).show();
+        }*/
+
         boolean isTestMode = GlobalState.getInstance().isTestMode();
         if (isTestMode) {
             startBtn.setVisibility(View.VISIBLE);
@@ -798,11 +764,20 @@ public class MainActivity extends MIPBaseActivity {
             testBtn.setVisibility(View.GONE);
             clearLogBtn.setVisibility(View.GONE);
         }
-
-
-        //在activity执行onResume时执行mMapView.onResume ()，重新绘制加载地图
+//在activity执行onResume时执行mMapView.onResume ()，重新绘制加载地图
         mMapView.onResume();
-        amapManager.drawLineFromDB();
+
+        //试一下放在oncreate()中
+       // amapManager.drawLineFromDB();
+
+
+        //每次进入界面都去检查一下gps状态
+        initGPS();
+
+
+
+
+
 
     }
 

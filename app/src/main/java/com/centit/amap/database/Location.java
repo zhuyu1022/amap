@@ -24,4 +24,7 @@ public class Location {
     public String address;
     public String userid;
     public float speed;
+
+
+
 }
