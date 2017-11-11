@@ -31,6 +31,8 @@ public class SharedUtil {
 	public static final String switch_flag="switch_flag";
 		//截至时间
 	public static final String endTime="endTime";
+//数据库中最后一条记录的time
+	public static final String lastTime="lastTime";
 
 
 	public static void putValue(Context context, String key, Object value) {

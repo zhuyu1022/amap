@@ -103,8 +103,38 @@ public class MapDatebaseManager {
         cursor.close();
         return list;
 
+    }
+
+
+    /**
+     * 查询大于time的所有数据
+     * @return
+     */
+    public ArrayList<Location> queryLocationsByTime(String time){
+
+        Cursor cursor=db.rawQuery("select * from location where time > '"+time+"'",null);
+        ArrayList<Location> list=new ArrayList<>();
+        if (cursor.moveToFirst()) {
+
+
+            do {
+                Location location =new Location();
+                location.time=cursor.getString(1);
+                location.lat=cursor.getFloat(2);
+                location.lng=cursor.getFloat(3);
+                location.address=cursor.getString(4);
+                location.userid=cursor.getString(5);
+
+                list.add(location);
+            }while(cursor.moveToNext());
+
+        }
+        cursor.close();
+        return list;
 
     }
+
+
     /**
      * 查询数据库最后一条记录的id
      * @return
@@ -125,6 +155,27 @@ public class MapDatebaseManager {
         return id;
 
     }
+
+
+    /**
+     * 查询数据库最后一条记录的Time
+     * @return
+     */
+    public String  querylastTime(){
+
+        Cursor cursor=db.rawQuery("select * from location order by id desc limit 1",null);
+        String time="";
+        if (cursor.moveToFirst()) {
+            do {
+                time =cursor.getString(1);
+            }while(cursor.moveToNext());
+        }
+        cursor.close();
+        return time;
+
+    }
+
+
 
     /**
      * 查询最后几条数据

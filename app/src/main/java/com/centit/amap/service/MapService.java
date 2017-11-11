@@ -61,9 +61,8 @@ public class MapService extends MIPBaseService {
     //上传坐标请求码
     private static final int REQUEST_UPLOAD = 0;
     //日期格式
-    private SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
-    //日期格式
-    private SimpleDateFormat dfDate = new SimpleDateFormat("yyyyMMdd");
+    public static final SimpleDateFormat DATEFORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
+
     //android原生定位管理器
     private LocationManager lm;
     //声明AMapLocationClientOption对象
@@ -277,7 +276,7 @@ public class MapService extends MIPBaseService {
                     String address = aMapLocation.getAddress();//地址
                     String street = aMapLocation.getStreet();//街道信息
                     //Date date = new Date(aMapLocation.getTime());//定位时间
-                    String time = df.format(date);
+                    String time = DATEFORMAT.format(date);
                     //生成location实例
                     Location location = new Location(time, lat, lng, street, mUserid, 0);
                     //后面吧业务逻辑放在这里，type为2的情况就不要记录了，用户压根就没动
@@ -323,8 +322,21 @@ public class MapService extends MIPBaseService {
                             //mLocationClient.startLocation();
                             LogUtil.save(MapService.this, "已获取到gps信号，切换回设备模式\n");
                             ToastUtil.show(MapService.this,"已获取到gps信号，切换回设备模式");
-                        } else {
+                        }
 
+
+                        //在设备模式下实时检查服务器的定位距离是否变更
+                        if (mLocationOption.getLocationMode()==AMapLocationClientOption.AMapLocationMode.Device_Sensors){
+                           String distance = (String) SharedUtil.getValue(MapService.this, SharedUtil.distance, "10");
+                            if (!TextUtils.isEmpty(distance)) {
+
+                                if (locationDistance!=Integer.parseInt(distance)){
+                                    mLocationOption.setDeviceModeDistanceFilter(locationDistance);
+                                    mLocationClient.setLocationOption(mLocationOption);
+                                    locationDistance = Integer.parseInt(distance);
+                                }
+
+                            }
                         }
                         //获取电池电量
                         String battery = BatteryUtils.getBatteryPercent(MapService.this) + "%";
@@ -464,7 +476,7 @@ public class MapService extends MIPBaseService {
         }else{
             gps_flag="1";
         }
-        String time=df.format(new Date());
+        String time=DATEFORMAT.format(new Date());
 
         LogUtil.save(this,"开始上传位置，上传时间："+time+"所有坐标点：共"+locationList.size()+"个\n");
         for (int i = 0; i <locationList.size() ; i++) {
@@ -539,8 +551,8 @@ public class MapService extends MIPBaseService {
 
         }
         try {
-            Date dateStart = df.parse(locationList.get(0).time);
-            Date dateEnd = df.parse(locationList.get(locationList.size() - 1).time);
+            Date dateStart = DATEFORMAT.parse(locationList.get(0).time);
+            Date dateEnd = DATEFORMAT.parse(locationList.get(locationList.size() - 1).time);
             long time = (dateStart.getTime() - dateEnd.getTime()) / 1000;
             if (time != 0) {
                 speed = distance / time;
@@ -675,7 +687,7 @@ public class MapService extends MIPBaseService {
             LogUtil.e("在MapService中发现后台MapAlarmCheckService服务停掉了");
             if (isRestartService) {
                 Date date=new Date();
-                String time=df.format(date);
+                String time=DATEFORMAT.format(date);
                 LogUtil.save(this,time+"在广播中发现后台MapAlarmCheckService服务停掉了!!!!!!!重新启动!!!\n\n\n");
                 LogUtil.e("重新启动!!!");
                 Intent locationIntent = new Intent(this, MapAlarmCheckService.class);
@@ -688,7 +700,7 @@ public class MapService extends MIPBaseService {
             LogUtil.e("在MapService中发现后台UploadPositionService服务停掉了");
             if (isRestartService) {
                 Date date=new Date();
-                String time=df.format(date);
+                String time=DATEFORMAT.format(date);
                 LogUtil.save(this,time+"在广播中发现后台UpLoadPositionService服务停掉了!!!!!!!重新启动!!!\n\n\n");
                 LogUtil.e("重新启动!!!");
                 Intent locationIntent = new Intent(this, UpLoadPositionService.class);

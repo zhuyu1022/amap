@@ -137,21 +137,21 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
 
         //去掉测试按钮布局
         boolean isTestMode = GlobalState.getInstance().isTestMode();
-       /* if (isTestMode) {
+   /*     if (isTestMode) {
             testRl.setVisibility(View.VISIBLE);
+            webAddressRl.setVisibility(View.VISIBLE);
         } else {
             testRl.setVisibility(View.GONE);
+            webAddressRl.setVisibility(View.GONE);
         }*/
 
         boolean isRealEnvironment = Constant_Mgr.isRealEnvironment;
         if (isRealEnvironment) {
             upLoadLogRl.setVisibility(View.GONE);
-            webAddressRl.setVisibility(View.GONE);
         } else {
             upLoadLogRl.setVisibility(View.VISIBLE);
-            webAddressRl.setVisibility(View.VISIBLE);
-        }
 
+        }
 
         String userName = (String) SharedUtil.getValue(this, SharedUtil.username, "");
         userNameTv.setText(userName);
@@ -194,7 +194,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
 
     private void initEvent() {
         userNameRl.setOnClickListener(this);
-        webAddressRl.setOnClickListener(this);
+      //  webAddressRl.setOnClickListener(this);
         upLoadLogRl.setOnClickListener(this);
         checkNewVersionRl.setOnClickListener(this);
         //uploadBtn.setOnClickListener(this);

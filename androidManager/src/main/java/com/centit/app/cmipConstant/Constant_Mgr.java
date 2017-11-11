@@ -35,14 +35,17 @@ public class Constant_Mgr
 
    //public static String       mConPort                 = "";
 
-    public static String       mConIP                   = "huyang.tunnel.qydev.com";
-    public static String       mConPort                 = "";
+  //  public static String       mConIP                   = "huyang.tunnel.qydev.com";
+  //  public static String       mConPort                 = "";
 
+
+  public static String       mConIP                   = "huyang.s1.natapp.cc";
+   public static String       mConPort                 = "";
 
 
   // public static String       mConIP                   = "www.wuzhenduty.com";
 //
-  // public static String       mConPort                 = "90";
+ // public static String       mConPort                 = "90";
 
 
 

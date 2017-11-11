@@ -46,13 +46,15 @@ public class UpLoadPositionService extends MIPBaseService {
     //上一次上传服务器时数据库中最后一条记录的id
     int id;
 
+
+    String lastTime="";
+
     private String timing="60";
     //定时请求配置参数
     private  static final long getConfParamsTime=3*60*1000;
     String endTime="";
 
     //日期格式
-   // private SimpleDateFormat dfDate = new SimpleDateFormat("yyyyMMddHHmm");
     private SimpleDateFormat dfDate = new SimpleDateFormat("yyyy-MM-dd");
     //日期格式
     private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -74,20 +76,21 @@ public class UpLoadPositionService extends MIPBaseService {
         super.onCreate();
         LogUtil.d("上传服务创建");
         dbManager=new MapDatebaseManager(this);
-
+//  检查结束时间
+        checkEndTime();
+        //获取间隔时间
+        timing= (String) SharedUtil.getValue(UpLoadPositionService.this,SharedUtil.timing,"60");
+        long second =Integer.parseInt(timing)*1000;
+        lastTime= (String) SharedUtil.getValue(this,SharedUtil.lastTime,"");
+        //延时启动handler
+        upLoadhandler.postDelayed(upLoadRunnable, second);
+        getConfParamsHandler.postDelayed(getConfParamsRunnable ,getConfParamsTime);
     }
 
     @Override
     public int onStartCommand(Intent intent,  int flags, int startId) {
             LogUtil.d("上传服务启动");
-    //  检查结束时间
-        checkEndTime();
-        //获取间隔时间
-        timing= (String) SharedUtil.getValue(UpLoadPositionService.this,SharedUtil.timing,"60");
-        long second =Integer.parseInt(timing)*1000;
-        //延时启动handler
-        upLoadhandler.postDelayed(upLoadRunnable, second);
-        getConfParamsHandler.postDelayed(getConfParamsRunnable ,getConfParamsTime);
+
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -132,18 +135,23 @@ public class UpLoadPositionService extends MIPBaseService {
     Runnable  upLoadRunnable=new Runnable(){
         @Override
         public void run() {
-
+            //要做的事情，这里再次调用此Runnable对象，以实现每两秒实现一次的定时器操作
+            //每次都去从本地拿最新的配置参数，确保每一次都是有效的
+            timing= (String) SharedUtil.getValue(UpLoadPositionService.this,SharedUtil.timing,"60");
+            long second =Integer.parseInt(timing)*1000;
+            lastTime= (String) SharedUtil.getValue(UpLoadPositionService.this,SharedUtil.lastTime,"");
             //检查结束时间是否匹配
             checkEndTime();
             LogUtil.d("handler方式启动！");
-            // TODO Auto-generated method stub
-            //要做的事情，这里再次调用此Runnable对象，以实现每两秒实现一次的定时器操作
 
             //记录数据库中大于该id的所有记录
-            List<Location> locationList=dbManager.queryLocationsById(id);
+           // List<Location> locationList=dbManager.queryLocationsById(id);
+            //  从数据库中查询大于改时间的所有数据
+            List<Location> locationList=dbManager.queryLocationsByTime(lastTime);
             //记录最新一条记录
             Location lastLocation=new Location();
             List<Location> lastLocationList =    dbManager.querylastLocation(1);
+
             if (lastLocationList.size()>0){
                 lastLocation=lastLocationList.get(0);
                 //如果没有记录，即本次时间段内没有采集到点 ，则放入上次定位的最新的点
@@ -153,15 +161,17 @@ public class UpLoadPositionService extends MIPBaseService {
             }
             startUpLoad(lastLocation.lat+"",lastLocation.lng+"",lastLocation.time,locationList);
             //获取数据库中最后一条记录的id
-            id =dbManager.querylastId();
+            //id =dbManager.querylastId();
+            //查询数据库中最后一条记录的time，也就是定位时间，这个数值在上传成功后再保存在本地，非常重要！！！！上传失败的话不要保存该值，会重新从数据库中把上次失败上传的数值一起重新上传！！！
+            lastTime=dbManager.querylastTime();
 
 
-            long second =Integer.parseInt(timing)*1000;
+
+
             //如果没有接收到停止服务的广播，继续循环
             if (!isStop){
                 upLoadhandler.postDelayed(this, second);
             }
-
         }
     };
 
@@ -302,6 +312,14 @@ public class UpLoadPositionService extends MIPBaseService {
 
                         LogUtil.d("上传成功！");
                         LogUtil.save(UpLoadPositionService.this,"上传成功！,上传间隔时间："+timing+"秒");
+
+                        //在定位成功后保存数据库中
+
+
+                        //一定要及时保存在本地，app重新进入的时候需要这个值，能够避免重复上传本地的点
+                        SharedUtil.putValue(UpLoadPositionService.this,SharedUtil.lastTime,lastTime);
+
+
                         return;
                     }
                 }
@@ -378,7 +396,7 @@ public class UpLoadPositionService extends MIPBaseService {
         } else {
             switch (requestType) {
                 case ServiceImpl.TYPE_DOWNLOADCONFPARAMS:
-                    Toast.makeText(this, "服务器连接失败！", Toast.LENGTH_SHORT).show();
+                 //   Toast.makeText(this, "服务器连接失败！", Toast.LENGTH_SHORT).show();
             }
         }
 
