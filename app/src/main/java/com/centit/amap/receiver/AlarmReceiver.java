@@ -24,9 +24,9 @@ public class AlarmReceiver extends BroadcastReceiver {
             LogUtil.e("接收到定时定位广播请求");
             boolean isRunning=SystemUtils.isServiceRunning(context, Constant.MapService);
             if (!isRunning){
-                boolean isRestartService = (boolean) SharedUtil.getValue(context, SharedUtil.isRestartService, false);
+                boolean stopBySever = (boolean) SharedUtil.getValue(context, SharedUtil.stopBySever, false);
                 LogUtil.e("在广播中发现后台MapService服务停掉了");
-                if (isRestartService) {
+                if (!stopBySever) {
                     Date date=new Date();
                     String time=df.format(date);
                     LogUtil.save(context,time+"在广播中发现后台MapService服务停掉了!!!!!!!重新启动!!!\n\n\n");
@@ -37,9 +37,9 @@ public class AlarmReceiver extends BroadcastReceiver {
             }
             isRunning=SystemUtils.isServiceRunning(context, Constant.MapAlarmCheckService);
             if (!isRunning){
-                boolean isRestartService = (boolean) SharedUtil.getValue(context, SharedUtil.isRestartService, false);
+                boolean stopBySever = (boolean) SharedUtil.getValue(context, SharedUtil.stopBySever, false);
                 LogUtil.e("在广播中发现后台MapAlarmCheckService服务停掉了");
-                if (isRestartService) {
+                if (!stopBySever) {
                     Date date=new Date();
                     String time=df.format(date);
                     LogUtil.save(context,time+"在广播中发现后台MapAlarmCheckService服务停掉了!!!!!!!重新启动!!!\n\n\n");
@@ -51,9 +51,9 @@ public class AlarmReceiver extends BroadcastReceiver {
             }
             isRunning=SystemUtils.isServiceRunning(context, Constant.UpLoadPositionService);
             if (!isRunning){
-                boolean isRestartService = (boolean) SharedUtil.getValue(context, SharedUtil.isRestartService, false);
+                boolean stopBySever = (boolean) SharedUtil.getValue(context, SharedUtil.stopBySever, false);
                 LogUtil.e("在广播中发现后台UploadPositionService服务停掉了");
-                if (isRestartService) {
+                if (!stopBySever) {
                     Date date=new Date();
                     String time=df.format(date);
                     LogUtil.save(context,time+"在广播中发现后台UpLoadPositionService服务停掉了!!!!!!!重新启动!!!\n\n\n");

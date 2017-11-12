@@ -3,8 +3,10 @@ package com.centit.amap.service;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
@@ -133,7 +135,8 @@ public class MapService extends MIPBaseService {
         //定时上传定位点，非常重要！！！！！
         startUploadService();
 
-
+        //注册广播，用于监听 是否到时间停止mapservice
+       // registerReceiver(myBroadCastReceiver,intentFilter);
     }
 
     //将service变为前台进程
@@ -211,8 +214,8 @@ public class MapService extends MIPBaseService {
 
     private void startUploadService() {
 
-        boolean isRestartService = (boolean) SharedUtil.getValue(this, SharedUtil.isRestartService, false);
-        if (isRestartService) {{
+        boolean stopBySever = (boolean) SharedUtil.getValue(this, SharedUtil.stopBySever, true);
+        if (!stopBySever) {{
             //创建Alarm并启动
             Intent intent = new Intent(this, UpLoadPositionService.class);
             startService(intent);
@@ -263,8 +266,14 @@ public class MapService extends MIPBaseService {
         public void onLocationChanged(AMapLocation aMapLocation) {
             if (aMapLocation != null) {
                 if (aMapLocation.getErrorCode() == 0) {
-                    checkService();
+                    //如果没有被服务器停止z再去做业务逻辑处理
+                    boolean stopBySever= (boolean) SharedUtil.getValue(MapService.this,SharedUtil.stopBySever,true);
+                    if (stopBySever) {
+                        LogUtil.d("被服务器停止了，不做地址解析！");
+                        return;
+                    }
 
+                    checkService();
                     //初始化参数，避免服务器更新了，及时保存到本地，使得配置起作用
                     initDate();
                     Date date = new Date();
@@ -607,6 +616,9 @@ public class MapService extends MIPBaseService {
     public void onDestroy() {
         LogUtil.d("");
         super.onDestroy();
+
+        //注销广播
+      //  unregisterReceiver(myBroadCastReceiver);
         //停止上传service
         stopUploadService();
         //销毁定位客户端,停止定位后，本地定位服务并不会被销毁
@@ -622,8 +634,8 @@ public class MapService extends MIPBaseService {
         //Toast.makeText(this, "服务已停止", Toast.LENGTH_SHORT).show();
         ToastUtil.show(this, "服务已停止");
         //如果不是用户销毁的，则重新启动服务
-        boolean isRestartService = (boolean) SharedUtil.getValue(MapService.this, SharedUtil.isRestartService, false);
-        if (isRestartService) {
+        boolean stopBySever = (boolean) SharedUtil.getValue(MapService.this, SharedUtil.stopBySever, true);
+        if (!stopBySever) {
             Intent intent = new Intent(this, MapService.class);
             this.startService(intent);
             Toast.makeText(this, "服务已重新开始", Toast.LENGTH_SHORT).show();
@@ -675,17 +687,29 @@ public class MapService extends MIPBaseService {
 
 
     }
+   /* //new出上边定义好的BroadcastReceiver
+    MapService.MyBroadCastReceiver myBroadCastReceiver = new MapService.MyBroadCastReceiver();
 
+    //实例化过滤器并设置要过滤的广播
+    IntentFilter intentFilter = new IntentFilter("STOPMAPSERVICE");
 
+    class MyBroadCastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "onReceive: 时间到了，接收到停止MAPSERVICE服务的广播");
+            mLocationClient.stopLocation();
+        }
+    }*/
 
 
     private void checkService(){
         boolean isRunning=SystemUtils.isServiceRunning(this, Constant.MapService);
         isRunning=SystemUtils.isServiceRunning(this, Constant.MapAlarmCheckService);
         if (!isRunning){
-            boolean isRestartService = (boolean) SharedUtil.getValue(this, SharedUtil.isRestartService, false);
+            boolean stopBySever = (boolean) SharedUtil.getValue(this, SharedUtil.stopBySever, true);
             LogUtil.e("在MapService中发现后台MapAlarmCheckService服务停掉了");
-            if (isRestartService) {
+            if (!stopBySever) {
                 Date date=new Date();
                 String time=DATEFORMAT.format(date);
                 LogUtil.save(this,time+"在广播中发现后台MapAlarmCheckService服务停掉了!!!!!!!重新启动!!!\n\n\n");
@@ -696,9 +720,9 @@ public class MapService extends MIPBaseService {
         }
         isRunning=SystemUtils.isServiceRunning(this, Constant.UpLoadPositionService);
         if (!isRunning){
-            boolean isRestartService = (boolean) SharedUtil.getValue(this, SharedUtil.isRestartService, false);
+            boolean stopBySever = (boolean) SharedUtil.getValue(this, SharedUtil.stopBySever, true);
             LogUtil.e("在MapService中发现后台UploadPositionService服务停掉了");
-            if (isRestartService) {
+            if (!stopBySever) {
                 Date date=new Date();
                 String time=DATEFORMAT.format(date);
                 LogUtil.save(this,time+"在广播中发现后台UpLoadPositionService服务停掉了!!!!!!!重新启动!!!\n\n\n");

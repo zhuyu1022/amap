@@ -30,7 +30,7 @@ public class Constant_Mgr
     // ===============URL 定义==============================
 
 
-    // 测试环境 104
+    // 测试环境
   // public static String       mConIP                   = "lihao.tunnel.qydev.com";
 
    //public static String       mConPort                 = "";
@@ -38,12 +38,16 @@ public class Constant_Mgr
   //  public static String       mConIP                   = "huyang.tunnel.qydev.com";
   //  public static String       mConPort                 = "";
 
+//胡阳
+    public static String       mConIP                   = "huyang.s1.natapp.cc";
+    public static String       mConPort                 = "";
 
-  public static String       mConIP                   = "huyang.s1.natapp.cc";
-   public static String       mConPort                 = "";
+    //高健
+  // public static String       mConIP                   = "103.44.145.245";
+   // public static String       mConPort                 = "36378";
 
-
-  // public static String       mConIP                   = "www.wuzhenduty.com";
+    //阿里云
+//public static String       mConIP                   = "www.wuzhenduty.com";
 //
  // public static String       mConPort                 = "90";
 

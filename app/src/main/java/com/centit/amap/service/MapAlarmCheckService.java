@@ -38,8 +38,8 @@ public class MapAlarmCheckService extends Service {
         LogUtil.e( "onStartCommand: alarm服务启动了");
         boolean isRunning=SystemUtils.isServiceRunning(this, Constant.MapService);
         if (!isRunning){
-            boolean isRestartService = (boolean) SharedUtil.getValue(this, SharedUtil.isRestartService, false);
-            if (isRestartService) {
+            boolean stopBySever = (boolean) SharedUtil.getValue(this, SharedUtil.stopBySever, false);
+            if (!stopBySever) {
                 LogUtil.e("在alarm服务中发现mapservice已经停止！！！！重新启动！！！");
                 LogUtil.save(this, "在alarm服务中发现mapservice已经停止！！！！重新启动！！！\n\n\n");
                 Intent i = new Intent(MapAlarmCheckService.this, MapService.class);

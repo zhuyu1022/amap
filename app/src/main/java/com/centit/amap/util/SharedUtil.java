@@ -12,8 +12,8 @@ public class SharedUtil {
 	public static final String lname = "lname";
 
 
-	//是否由用户停止
-	public static final String isRestartService = "isRestartService";
+	//是否需要停止
+	public static final String stopBySever = "stopBySever";
 
 
     public static final String devicetype="devicetype"; //"设备类型",

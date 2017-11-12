@@ -119,19 +119,15 @@ public class MainActivity extends MIPBaseActivity {
     //地图摄像机
     private CameraUpdate mUpdate;
 
-    //new出上边定义好的BroadcastReceiver
-    MyBroadCastReceiver myBroadCastReceiver = new MyBroadCastReceiver();
-
-    //实例化过滤器并设置要过滤的广播
-    IntentFilter intentFilter = new IntentFilter("STOPMAPSERVICE");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate: ");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initAmap(savedInstanceState);
-        initDate();
         initDingdingDate();
+        initDate();
+
 
         initView();
         //从数据库中描点
@@ -143,7 +139,7 @@ public class MainActivity extends MIPBaseActivity {
         appVersionCheck();
         startAmapSercvice();
         //注册广播，用于监听 是否到时间停止mapservice
-        registerReceiver(myBroadCastReceiver,intentFilter);
+      //  registerReceiver(myBroadCastReceiver,intentFilter);
         //开启百度推送
        //PushManager.startWork(getApplicationContext(), PushConstants.LOGIN_TYPE_API_KEY,BaiduPush_API);
     }
@@ -155,6 +151,35 @@ public class MainActivity extends MIPBaseActivity {
         //初始化APP配置
         String url = Constant_Mgr.getMIP_BASEURL();
         GlobalState.getInstance().setmRequestURL(url);
+        String ip=GlobalState.getInstance().getmIPAddr();
+
+
+        if (ip.equals("lihao.tunnel.qydev.com")) {
+            SharedUtil.putValue(this, SharedUtil.corpid, "ding2ace95aa3863334d35c2f4657eb6378f");
+        } else if (ip.equals("huyang.tunnel.qydev.com")) {
+            SharedUtil.putValue(this, SharedUtil.corpid, "dingbc5cedd6d4aa45cd35c2f4657eb6378f");
+        } else if (ip.equals("www.wuzhenduty.com")) {
+            SharedUtil.putValue(this, SharedUtil.corpid, "ding19d27657e0b609a535c2f4657eb6378f");
+        }else if (ip.equals("103.44.145.245")) {
+            SharedUtil.putValue(this, SharedUtil.corpid, "ding2ace95aa3863334d35c2f4657eb6378f");
+        }else if (ip.equals("huyang.s1.natapp.cc")) {
+            SharedUtil.putValue(this, SharedUtil.corpid, "dingbc5cedd6d4aa45cd35c2f4657eb6378f");
+        }
+
+
+     /*   if ("ding2ace95aa3863334d35c2f4657eb6378f".equals(corpid)) {
+            GlobalState.getInstance().setmIPAddr("103.44.145.245");
+            GlobalState.getInstance().setmPortNum("36378");
+            GlobalState.getInstance().setmRequestURL(Constant_Mgr.getMIP_BASEURL());
+        } else if ("dingbc5cedd6d4aa45cd35c2f4657eb6378f".equals(corpid)) {
+            GlobalState.getInstance().setmIPAddr("huyang.s1.natapp.cc");
+            GlobalState.getInstance().setmPortNum("");
+            GlobalState.getInstance().setmRequestURL(Constant_Mgr.getMIP_BASEURL());
+        } else if ("ding19d27657e0b609a535c2f4657eb6378f".equals(corpid)) {
+            GlobalState.getInstance().setmIPAddr("www.wuzhenduty.com");
+            GlobalState.getInstance().setmPortNum("90");
+            GlobalState.getInstance().setmRequestURL(Constant_Mgr.getMIP_BASEURL());
+        }*/
         //app初始化参数
          corpid = (String) SharedUtil.getValue(this,SharedUtil.corpid,"");
          userid =(String) SharedUtil.getValue(this,SharedUtil.userid,"");
@@ -178,6 +203,8 @@ public class MainActivity extends MIPBaseActivity {
       SharedUtil.putValue(this, SharedUtil.devicecode, devicecode);
         SharedUtil.putValue(this, SharedUtil.devicetype, devicetype);
         SharedUtil.putValue(this, SharedUtil.systemversion, systemversion);
+        //每次进入app都默认所有服务都是需要开启的，这里设为true
+        SharedUtil.putValue(this, SharedUtil.stopBySever, false);
 
     }
 
@@ -207,14 +234,14 @@ public class MainActivity extends MIPBaseActivity {
             SharedUtil.putValue(this, SharedUtil.departmentname, departmentname);
 
             //*************************************根据corpid 设置 域名  ，正式环境 到时候注释掉**********************************//
-       /*     boolean isRealEnvironment = Constant_Mgr.isRealEnvironment;
-            if (!isRealEnvironment) {
+        //   boolean isRealEnvironment = Constant_Mgr.isRealEnvironment;
+           // if (!isRealEnvironment) {
                 if ("ding2ace95aa3863334d35c2f4657eb6378f".equals(corpid)) {
-                    GlobalState.getInstance().setmIPAddr("lihao.tunnel.qydev.com");
-                    GlobalState.getInstance().setmPortNum("");
+                    GlobalState.getInstance().setmIPAddr("103.44.145.245");
+                    GlobalState.getInstance().setmPortNum("36378");
                     GlobalState.getInstance().setmRequestURL(Constant_Mgr.getMIP_BASEURL());
                 } else if ("dingbc5cedd6d4aa45cd35c2f4657eb6378f".equals(corpid)) {
-                    GlobalState.getInstance().setmIPAddr("huyang.tunnel.qydev.com");
+                    GlobalState.getInstance().setmIPAddr("huyang.s1.natapp.cc");
                     GlobalState.getInstance().setmPortNum("");
                     GlobalState.getInstance().setmRequestURL(Constant_Mgr.getMIP_BASEURL());
                 } else if ("ding19d27657e0b609a535c2f4657eb6378f".equals(corpid)) {
@@ -222,7 +249,7 @@ public class MainActivity extends MIPBaseActivity {
                     GlobalState.getInstance().setmPortNum("90");
                     GlobalState.getInstance().setmRequestURL(Constant_Mgr.getMIP_BASEURL());
                 }
-            }*/
+         //   }
 //                开发环境域名：http://lihao.tunnel.qydev.com
 //            开发环境corpid：ding2ace95aa3863334d35c2f4657eb6378f
 
@@ -234,7 +261,7 @@ public class MainActivity extends MIPBaseActivity {
 
             LogUtil.d("uri:" + uri.toString());
         } else if (uri == null) {;
-            if (TextUtils.isEmpty(corpid)) {
+            if (TextUtils.isEmpty((String) SharedUtil.getValue(this,SharedUtil.corpid,""))) {
                 dingdingStr = "uri为空！";
                 SimpleDialog.show(this, "首次打开，请从钉钉打开本应用!", null, new SimpleDialog.OnPositiveClickListener() {
                     @Override
@@ -472,7 +499,7 @@ public class MainActivity extends MIPBaseActivity {
     public void stopMapService() {
 
         //由系统或用户停止服务后，不需要重启
-        SharedUtil.putValue(MainActivity.this, SharedUtil.isRestartService, false);
+        SharedUtil.putValue(MainActivity.this, SharedUtil.stopBySever, true);
         Intent stopIntent = new Intent(MainActivity.this, MapService.class);
         stopService(stopIntent);
         //解绑前判断一下
@@ -490,8 +517,8 @@ public class MainActivity extends MIPBaseActivity {
 
         boolean isRunning = SystemUtils.isServiceRunning(this, Constant.MapService);
         if (!isRunning) {
-            boolean isRestartService = (boolean) SharedUtil.getValue(this, SharedUtil.isRestartService, true);
-            if (isRestartService) {
+            boolean stopBySever = (boolean) SharedUtil.getValue(this, SharedUtil.stopBySever, false);
+            if (!stopBySever) {
 
             }
         }
@@ -634,7 +661,7 @@ public class MainActivity extends MIPBaseActivity {
             isBind = false;
         }
         //注销广播
-        unregisterReceiver(myBroadCastReceiver);
+       // unregisterReceiver(myBroadCastReceiver);
         //在activity执行onDestroy时执行mMapView.onDestroy()，销毁地图
         mMapView.onDestroy();
 
@@ -669,11 +696,16 @@ public class MainActivity extends MIPBaseActivity {
                                     SharedUtil.putValue(this, SharedUtil.timing, timing);
                                     SharedUtil.putValue(this, SharedUtil.switch_flag, switch_flag);
                                     SharedUtil.putValue(this, SharedUtil.endTime, date);
-                                    //如果是0 说明要关闭服务
+                                    //如果是0 说明要关闭
                                     if ("0".equals(switch_flag)) {
-                                        stopMapService();
+                                        SharedUtil.putValue(MainActivity.this,SharedUtil.stopBySever,true);
                                     }
-                                    checkEndTime();
+                                    String currentDate = dfDate.format(new Date());
+                                    //大于截至时间也关闭
+                                    if (currentDate.compareTo(date)>=0) {
+                                        SharedUtil.putValue(MainActivity.this,SharedUtil.stopBySever,true);
+                                    }
+
 
                                     return;
                                 }
@@ -695,36 +727,10 @@ public class MainActivity extends MIPBaseActivity {
 
     }
 
-    /**
-     * 检查服务器结束时间
-     */
-    private void checkEndTime(){
-        String endTime=(String) SharedUtil.getValue(this,SharedUtil.endTime,"");
-        Date date=new Date();
-        String currentDate = dfDate.format(date);
-        //endTime="201711092358";
-        if (currentDate.equals(endTime)) {
-            Toast.makeText(this, "已到结束日期，服务停止！", Toast.LENGTH_SHORT).show();
-            LogUtil.d("发送停止 MapService的广播。。。>>>");
-            Intent intent = new  Intent();
-            //设置intent的动作为com.example.broadcast，可以任意定义
-            intent.setAction("STOPMAPSERVICE");
-            //发送无序广播
-            sendBroadcast(intent);
-        }
-    }
 
 
 
 
-    class MyBroadCastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "onReceive: 时间到了，接收到停止MAPSERVICE服务的广播");
-                stopMapService();
-        }
-    }
 
 
     @Override

@@ -75,7 +75,7 @@ public class AmapManager {
         //i = 0;
         aMap.clear();
         //
-        SharedUtil.putValue(mContext, SharedUtil.isRestartService, true);
+        SharedUtil.putValue(mContext, SharedUtil.stopBySever, false);
         //第一个点是否是起点
         isFirstPoint = true;
         //设置线段属性

@@ -59,7 +59,7 @@ public class UpLoadPositionService extends MIPBaseService {
     //日期格式
     private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private boolean isStop=false;
+
 
     public UpLoadPositionService() {
     }
@@ -77,7 +77,7 @@ public class UpLoadPositionService extends MIPBaseService {
         LogUtil.d("上传服务创建");
         dbManager=new MapDatebaseManager(this);
 //  检查结束时间
-        checkEndTime();
+        //checkEndTime();
         //获取间隔时间
         timing= (String) SharedUtil.getValue(UpLoadPositionService.this,SharedUtil.timing,"60");
         long second =Integer.parseInt(timing)*1000;
@@ -85,6 +85,8 @@ public class UpLoadPositionService extends MIPBaseService {
         //延时启动handler
         upLoadhandler.postDelayed(upLoadRunnable, second);
         getConfParamsHandler.postDelayed(getConfParamsRunnable ,getConfParamsTime);
+        //注册广播，用于监听 是否到时间停止mapservice
+      ///  registerReceiver(myBroadCastReceiver,intentFilter);
     }
 
     @Override
@@ -111,12 +113,13 @@ public class UpLoadPositionService extends MIPBaseService {
     }*/
 
 
-    private void checkEndTime(){
+/*    private void checkEndTime(){
         endTime=(String) SharedUtil.getValue(UpLoadPositionService.this,SharedUtil.endTime,"");
         Date date=new Date();
         String currentDate = dfDate.format(date);
         //endTime="201711092358";
-        if (currentDate.equals(endTime)) {
+        if (currentDate.compareTo(endTime)>=0) {
+            isStop=true;
             LogUtil.d("发送停止 MapService的广播。。。>>>");
             Intent intent = new  Intent();
             //设置intent的动作为com.example.broadcast，可以任意定义
@@ -124,7 +127,7 @@ public class UpLoadPositionService extends MIPBaseService {
             //发送无序广播
             sendBroadcast(intent);
         }
-    }
+    }*/
 
 
 
@@ -141,7 +144,7 @@ public class UpLoadPositionService extends MIPBaseService {
             long second =Integer.parseInt(timing)*1000;
             lastTime= (String) SharedUtil.getValue(UpLoadPositionService.this,SharedUtil.lastTime,"");
             //检查结束时间是否匹配
-            checkEndTime();
+            //checkEndTime();
             LogUtil.d("handler方式启动！");
 
             //记录数据库中大于该id的所有记录
@@ -159,19 +162,22 @@ public class UpLoadPositionService extends MIPBaseService {
                     locationList.add(lastLocation);
                 }
             }
+            //如果没有被服务器停止，才上传
+            boolean stopBySever= (boolean) SharedUtil.getValue(UpLoadPositionService.this,SharedUtil.stopBySever,true);
+            if (!stopBySever) {
+
             startUpLoad(lastLocation.lat+"",lastLocation.lng+"",lastLocation.time,locationList);
+            }else{
+                LogUtil.d("被服务器停止了，不进行上传坐标！");
+            }
             //获取数据库中最后一条记录的id
             //id =dbManager.querylastId();
             //查询数据库中最后一条记录的time，也就是定位时间，这个数值在上传成功后再保存在本地，非常重要！！！！上传失败的话不要保存该值，会重新从数据库中把上次失败上传的数值一起重新上传！！！
             lastTime=dbManager.querylastTime();
 
+            //一直循环
+             upLoadhandler.postDelayed(this, second);
 
-
-
-            //如果没有接收到停止服务的广播，继续循环
-            if (!isStop){
-                upLoadhandler.postDelayed(this, second);
-            }
         }
     };
 
@@ -189,26 +195,13 @@ public class UpLoadPositionService extends MIPBaseService {
             // TODO Auto-generated method stub
             //要做的事情，这里再次调用此Runnable对象，以实现每两秒实现一次的定时器操作
             downloadConfParams();
+            //3分钟
             long second =3*60*1000;
             //如果没有接收到停止服务的广播，继续循环
-            if (!isStop){
-                upLoadhandler.postDelayed(this, second);
-            }
+            getConfParamsHandler.postDelayed(this, second);
+
         }
     };
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //3，使用PostDelayed方法，两秒后调用此Runnable对象
 
@@ -218,13 +211,7 @@ public class UpLoadPositionService extends MIPBaseService {
 //handler.removeCallbacks(runnable);
 
 
-
-
-
-
-
-
-    //new出上边定义好的BroadcastReceiver
+/*    //new出上边定义好的BroadcastReceiver
     UpLoadPositionService.MyBroadCastReceiver myBroadCastReceiver = new UpLoadPositionService.MyBroadCastReceiver();
     //实例化过滤器并设置要过滤的广播
     IntentFilter intentFilter = new IntentFilter("STOPMAPSERVICE");
@@ -234,8 +221,11 @@ public class UpLoadPositionService extends MIPBaseService {
             public void onReceive(Context context, Intent intent) {
                 Log.d("MyBroadCastReceiver", "onReceive: 时间到了，接收到停止MAPSERVICE服务的广播");
                 isStop=true;
+            getConfParamsHandler.removeCallbacks(getConfParamsRunnable);
+            upLoadhandler.removeCallbacks(upLoadRunnable);
+            UpLoadPositionService.this.stopSelf();
         }
-    }
+    }*/
 
     /**
      * 上传坐标
@@ -315,7 +305,6 @@ public class UpLoadPositionService extends MIPBaseService {
 
                         //在定位成功后保存数据库中
 
-
                         //一定要及时保存在本地，app重新进入的时候需要这个值，能够避免重复上传本地的点
                         SharedUtil.putValue(UpLoadPositionService.this,SharedUtil.lastTime,lastTime);
 
@@ -336,6 +325,9 @@ public class UpLoadPositionService extends MIPBaseService {
     public void onDestroy() {
         LogUtil.d("上传服务销毁");
         super.onDestroy();
+
+        //注销广播
+        //unregisterReceiver(myBroadCastReceiver);
         if (alarmManager != null) {
             alarmManager.cancel(pendingIntent);
         }
@@ -374,13 +366,13 @@ public class UpLoadPositionService extends MIPBaseService {
                                     SharedUtil.putValue(this, SharedUtil.endTime, date);
                                     //如果是0 说明要关闭服务
                                     if ("0".equals(switch_flag)) {
-                                        Intent intent = new  Intent();
-                                        //设置intent的动作为com.example.broadcast，可以任意定义
-                                        intent.setAction("STOPMAPSERVICE");
-                                        //发送无序广播
-                                        sendBroadcast(intent);
+                                        SharedUtil.putValue(UpLoadPositionService.this,SharedUtil.stopBySever,true);
                                     }
-
+                                    String currentDate = dfDate.format(new Date());
+                                    //大于截至时间也关闭服务
+                                    if (currentDate.compareTo(endTime)>=0) {
+                                        SharedUtil.putValue(UpLoadPositionService.this,SharedUtil.stopBySever,true);
+                                    }
 
                                     return;
                                 }
